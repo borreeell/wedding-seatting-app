@@ -3,7 +3,7 @@
 ## Project Setup
 ### Clone repository
 ```sh
-git clone 
+git clone https://github.com/borreeell/wedding-seatting-app.git
 ```
 
 ### Install dependencies
@@ -12,7 +12,6 @@ npm install
 ```
 
 ### Run application
-
 ```sh
 npm run dev
 ```
