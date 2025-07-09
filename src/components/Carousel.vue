@@ -37,33 +37,33 @@ defineProps({
 </script>
 
 <style scoped>
-.carousel-container {
-  padding: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-}
+  .carousel-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
 
-.title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-}
+  .title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
 
-.slide-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+  .slide-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-.slide-content img {
-  max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+  .slide-content img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 
-.slide-content p {
-  margin-top: 0.75rem;
-  font-weight: 500;
-}
+  .slide-content p {
+    margin-top: 0.75rem;
+    font-weight: 500;
+  }
 </style>

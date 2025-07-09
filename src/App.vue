@@ -1,5 +1,6 @@
 <script setup>
-import Carousel from './components/carousel/Carousel.vue';
+import GuestList from './components/GuestList.vue';
+import Carousel from './components/Carousel.vue';
 
 const layouts = [
     {
@@ -22,5 +23,6 @@ const layouts = [
 </script>
 
 <template>
+    <GuestList />
     <Carousel :images="layouts" />
 </template>
