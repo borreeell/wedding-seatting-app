@@ -3,7 +3,6 @@
     <h2>Guest List</h2>
     <hr style="margin: 12px 0;">
     <ul>
-      <!-- Loop through guests and display their names and tables -->
       <li v-for="guest in guests" :key="guest.id">
         {{ guest.name }} - {{ guest.table }}
       </li>
@@ -20,7 +19,6 @@ export default {
     const guests = ref([]);
 
     onMounted(() => {
-      // Simulate fetching guest data (replace this with an API call to fetch database in the future)
       guests.value = [
         { id: 1, name: 'Guest 1', table: 'Table 1' },
         { id: 2, name: 'Guest 2', table: 'Table 2' },
