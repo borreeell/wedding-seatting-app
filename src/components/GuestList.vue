@@ -4,7 +4,7 @@
     <hr style="margin: 12px 0;">
     <ul>
       <li v-for="guest in guests" :key="guest.id">
-        {{ guest.name }} - {{ guest.table }}
+        {{ guest.name }} - {{  `Chair: ${guest.chair}` }}, {{ `Table ${guest.table}` }}, {{ `Floor: ${guest.floor}` }}
       </li>
     </ul>
   </aside>
@@ -20,10 +20,10 @@ export default {
 
     onMounted(() => {
       guests.value = [
-        { id: 1, name: 'Guest 1', table: 'Table 1' },
-        { id: 2, name: 'Guest 2', table: 'Table 2' },
-        { id: 3, name: 'Guest 3', table: 'Table 3' },
-        { id: 4, name: 'Guest 4', table: 'Table 4' }
+        { id: 1, name: 'Guest 1', chair: 2, table: 1, floor: 1 },
+        { id: 2, name: 'Guest 2', chair: 3, table: 1, floor: 1 },
+        { id: 3, name: 'Guest 3', chair: 1, table: 2, floor: 1 },
+        { id: 4, name: 'Guest 4', chair: 4, table: 2, floor: 1 }
       ];
     });
 
