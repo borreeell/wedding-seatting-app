@@ -19,7 +19,6 @@
 </template>
 
 <script setup>
-<<<<<<< HEAD
 import { ref } from 'vue'
 import SeatButton from './resources/SeatButton.vue'
 
