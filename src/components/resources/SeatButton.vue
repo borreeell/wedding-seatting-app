@@ -1,18 +1,6 @@
 <template>
   <div class="seat-layout" :class="{ zoom: zoomMode }">
-    <!-- Llista de convidats -->
-    <div v-if="!zoomMode" class="guest-list">
-      <h3>Guest List:</h3>
-      <ul>
-        <li
-          v-for="(guest, index) in guestList"
-          :key="index"
-        >
-          Table {{ guest.table }}, Sit {{ guest.chair }}: {{ guest.name }}
-        </li>
-      </ul>
-    </div>
-
+ç
     <!-- PLÀNOL GENERAL -->
     <div v-if="!zoomMode">
       <button
