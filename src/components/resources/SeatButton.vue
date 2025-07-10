@@ -1,7 +1,7 @@
 <template>
+  <!-- Main seat layout container, applies zoom class if zoomMode is true -->
   <div class="seat-layout" :class="{ zoom: zoomMode }">
-ç
-    <!-- PLÀNOL GENERAL -->
+
     <div v-if="!zoomMode">
       <button
         v-for="(seat, index) in seats"
@@ -14,12 +14,12 @@
       </button>
     </div>
 
-    <!-- ZOOM EN UNA TAULA -->
+    <!-- Zoomed-in view for a selected table -->
     <div v-else class="zoom-container">
       <button class="back-button" @click="exitZoom">← Exit</button>
       <img :src="tableZoomImage" class="zoomed-table" />
       
-      <!-- Botons cadira -->
+      <!-- Chair buttons for adding guests to specific seats -->
       <button
         v-for="(chair, i) in chairs"
         :key="i"
@@ -30,7 +30,7 @@
         {{ i + 1 }}
       </button>
 
-      <!-- Formulari per afegir convidat -->
+      <!-- Form to add a guest to a specific chair -->
       <div v-if="addingGuest" class="add-guest-form">
         <p>Add a guest to Table {{ selectedTable }}, Sit {{ chairToAdd }}:</p>
         <input v-model="newGuestName" placeholder="Name " />
@@ -44,12 +44,17 @@
 <script setup>
 import { ref } from 'vue'
 
+// Controls whether the zoomed-in table view is shown
 const zoomMode = ref(false)
+// Stores the currently selected table number
 const selectedTable = ref(null)
+// Path to the zoomed-in table image
 const tableZoomImage = 'src/assets/zoom1.png'
 
+// List of all guests (each with table, chair, and name)
 const guestList = ref([])
 
+// Absolute positions for each table's seat button (main view)
 const seats = [
   { top: 197, left: 655 }, { top: 370, left: 655 },
   { top: 540, left: 655 }, { top: 715, left: 655 },
@@ -58,6 +63,7 @@ const seats = [
   { top: 540, left: 985 }, { top: 715, left: 985 }
 ]
 
+// Absolute positions for each chair button (zoomed-in view)
 const chairs = [
   { top: 130, left: 245 }, { top: 130, left: 323 },
   { top: 225, left: 418 }, { top: 300, left: 418 },
@@ -65,28 +71,27 @@ const chairs = [
   { top: 300, left: 161 }, { top: 225, left: 161 }
 ]
 
-// Quan cliquem una taula al plànol general
+// Called when a table seat is selected; enters zoom mode for that table
 function selectSeat(index) {
   selectedTable.value = index + 1
   zoomMode.value = true
-  // Reset de qualsevol estat d'afegir convidat
   cancelAddGuest()
   console.log(`table selected ${selectedTable.value}`)
 }
 
-// Estat per gestionar el formulari d'afegir convidat
-const addingGuest = ref(false)
-const chairToAdd = ref(null)
-const newGuestName = ref('')
+// State for adding a guest
+const addingGuest = ref(false) 
+const chairToAdd = ref(null)   
+const newGuestName = ref('')   
 
-// Quan cliquem una cadira al zoom, mostrem el formulari
+// Start the add guest process for a specific chair
 function startAddGuest(chairNumber) {
   addingGuest.value = true
   chairToAdd.value = chairNumber
   newGuestName.value = ''
 }
 
-// Confirmar i afegir convidat
+// Confirm and add the new guest to the guest list
 function confirmAddGuest() {
   if (!newGuestName.value.trim()) {
     alert('Name')
@@ -102,14 +107,14 @@ function confirmAddGuest() {
   chairToAdd.value = null
 }
 
-// Cancel·lar afegir convidat
+// Cancel the add guest process and reset form state
 function cancelAddGuest() {
   addingGuest.value = false
   newGuestName.value = ''
   chairToAdd.value = null
 }
 
-// Sortir del zoom
+// Exit zoom mode and reset selection/add guest state
 function exitZoom() {
   zoomMode.value = false
   selectedTable.value = null

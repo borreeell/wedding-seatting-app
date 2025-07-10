@@ -2,16 +2,19 @@
   <aside class="guestList">
     <h2>Guest List</h2>
     <hr style="margin: 12px 0;">
-    <ul>
-      <li v-for="guest in guests" :key="guest.id">
-        {{ guest.name }} - {{  `Chair: ${guest.chair}` }}, {{ `Table ${guest.table}` }}, {{ `Floor: ${guest.floor}` }}
-      </li>
-    </ul>
+    <div v-for="(guests, floor) in guestsByFloor" :key="floor">
+      <h3>Floor {{ floor }}:</h3>
+      <ul>
+        <li v-for="guest in guests" :key="guest.id">
+          {{ guest.name }} - Chair {{ guest.chair }}, Table {{ guest.table }}
+        </li>
+      </ul>
+    </div>
   </aside>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 export default {
   name: 'GuestList',
@@ -27,8 +30,23 @@ export default {
       ];
     });
 
+    // Group guests by floor
+    const guestsByFloor = computed(() => {
+      const grouped = {};
+      guests.value.forEach(guest => {
+        if (!grouped[guest.floor]) grouped[guest.floor] = [];
+        grouped[guest.floor].push(guest);
+      });
+      // Optionally sort guests by chair or table if needed
+      Object.keys(grouped).forEach(floor => {
+        grouped[floor].sort((a, b) => a.chair - b.chair);
+      });
+      return grouped;
+    });
+
     return {
-      guests
+      guests,
+      guestsByFloor
     };
   }
 };
@@ -74,6 +92,12 @@ export default {
       padding: 0;
       margin-left: 12px;
       font-size: large;
+    }
+
+    .guestList h3 {
+      font-size: 1.2rem;
+      color: #524939;
+      margin: 1rem 0 0.5rem 0;
     }
 </style>
 
