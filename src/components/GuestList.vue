@@ -16,36 +16,49 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 
+import api from '@/services/api';
+
 export default {
   name: 'GuestList',
   setup() {
     const guests = ref([]);
 
-    onMounted(() => {
-      guests.value = [
-        { id: 1, name: 'Guest 1', chair: 2, table: 1, floor: 1 },
-        { id: 2, name: 'Guest 2', chair: 3, table: 1, floor: 1 },
-        { id: 3, name: 'Guest 3', chair: 1, table: 2, floor: 1 },
-        { id: 4, name: 'Guest 4', chair: 4, table: 2, floor: 1 }
-      ];
-    });
+    const fetchGuests = async () => {
+      try {
+        const { data } = await api.getTables();
 
-    // Group guests by floor
+        const parsed = data
+          .filter(row => row.guest_name) // Only seats with guests
+          .map((row, index) => ({
+            id: index + 1,
+            name: row.guest_name,
+            chair: row.seat_number,
+            table: row.table_number,
+            floor: row.floor,
+          }));
+
+        guests.value = parsed;
+      } catch (err) {
+        console.log(`Error fetching guests: ${err}`);
+      }
+    };
+
+    onMounted(fetchGuests);
+
     const guestsByFloor = computed(() => {
       const grouped = {};
       guests.value.forEach(guest => {
         if (!grouped[guest.floor]) grouped[guest.floor] = [];
         grouped[guest.floor].push(guest);
       });
-      // Optionally sort guests by chair or table if needed
+
       Object.keys(grouped).forEach(floor => {
-        grouped[floor].sort((a, b) => a.chair - b.chair);
+        grouped[floor].sort((a, b) => a.table - b.table || a.chair - b.chair);
       });
       return grouped;
     });
 
     return {
-      guests,
       guestsByFloor
     };
   }
