@@ -1,10 +1,9 @@
 <template>
-  <!-- Main seat layout container, applies zoom class if zoomMode is true -->
   <div class="seat-layout" :class="{ zoom: zoomMode }">
-
+    <!-- GENERAL MAP -->
     <div v-if="!zoomMode">
       <button
-        v-for="(seat, index) in seats"
+        v-for="(seat, index) in currentSeats"
         :key="index"
         class="seat"
         :style="{ top: seat.top + 'px', left: seat.left + 'px' }"
@@ -14,26 +13,30 @@
       </button>
     </div>
 
-    <!-- Zoomed-in view for a selected table -->
-    <div v-else class="zoom-container">
-      <button class="back-button" @click="exitZoom">← Exit</button>
+    <!-- ZOOM INTO A TABLE -->
+    <div 
+      v-else 
+      class="zoom-container"
+      @click="logChairPosition"
+    >
+      <button class="back-button" @click="exitZoom">← Back</button>
       <img :src="tableZoomImage" class="zoomed-table" />
       
-      <!-- Chair buttons for adding guests to specific seats -->
+      <!-- Chair buttons -->
       <button
-        v-for="(chair, i) in chairs"
+        v-for="(chair, i) in currentChairs"
         :key="i"
         class="chair-button"
         :style="{ top: chair.top + 'px', left: chair.left + 'px' }"
-        @click="startAddGuest(i + 1)"
+        @click.stop="startAddGuest(i + 1)"
       >
         {{ i + 1 }}
       </button>
 
-      <!-- Form to add a guest to a specific chair -->
+      <!-- Add guest form -->
       <div v-if="addingGuest" class="add-guest-form">
-        <p>Add a guest to Table {{ selectedTable }}, Sit {{ chairToAdd }}:</p>
-        <input v-model="newGuestName" placeholder="Name " />
+        <p>Add guest to Table {{ selectedTable }}, Chair {{ chairToAdd }}:</p>
+        <input v-model="newGuestName" placeholder="Guest name" />
         <button @click="confirmAddGuest">Save</button>
         <button @click="cancelAddGuest">Cancel</button>
       </div>
@@ -42,59 +45,120 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
-// Controls whether the zoomed-in table view is shown
+// Layout control
+  const currentLayout = ref(1)
 const zoomMode = ref(false)
-// Stores the currently selected table number
 const selectedTable = ref(null)
-// Path to the zoomed-in table image
-const tableZoomImage = 'src/assets/zoom1.png'
+const tableZoomImage = ref('src/assets/zoom1.png')
 
-// List of all guests (each with table, chair, and name)
 const guestList = ref([])
 
-// Absolute positions for each table's seat button (main view)
-const seats = [
-  { top: 197, left: 655 }, { top: 370, left: 655 },
-  { top: 540, left: 655 }, { top: 715, left: 655 },
-  { top: 540, left: 820 }, { top: 715, left: 820 },
-  { top: 197, left: 985 }, { top: 370, left: 985 },
-  { top: 540, left: 985 }, { top: 715, left: 985 }
-]
+// TAULES per layout diferent
+const seatsLayouts = {
+  1: [
+    { top: 197, left: 655 }, { top: 370, left: 655 },
+    { top: 540, left: 655 }, { top: 715, left: 655 },
+    { top: 540, left: 820 }, { top: 715, left: 820 },
+    { top: 197, left: 985 }, { top: 370, left: 985 },
+    { top: 540, left: 985 }, { top: 715, left: 985 },
+    { top: 300, left: 835 }
+  ],
+  2: [
+    { top: 400, left: 620 }, { top: 360, left: 620 },
+    { top: 540, left: 620 }, { top: 720, left: 620 },
+    { top: 540, left: 850 }, { top: 720, left: 850 },
+    { top: 180, left: 1020 }, { top: 360, left: 1020 },
+    { top: 540, left: 1020 }, { top: 720, left: 1020 },
+    { top: 300, left: 830 }
+  ],
+  3: [
+    { top: 150, left: 600 }, { top: 330, left: 600 },
+    { top: 510, left: 600 }, { top: 690, left: 600 },
+    { top: 510, left: 870 }, { top: 690, left: 870 },
+    { top: 150, left: 1050 }, { top: 330, left: 1050 },
+    { top: 510, left: 1050 }, { top: 690, left: 1050 },
+    { top: 300, left: 825 }
+  ],
+  4: [
+    { top: 210, left: 650 }, { top: 400, left: 650 },
+    { top: 590, left: 650 }, { top: 780, left: 650 },
+    { top: 590, left: 840 }, { top: 780, left: 840 },
+    { top: 210, left: 1000 }, { top: 400, left: 1000 },
+    { top: 590, left: 1000 }, { top: 780, left: 1000 },
+    { top: 320, left: 830 }
+  ]
+}
 
-// Absolute positions for each chair button (zoomed-in view)
-const chairs = [
+const currentSeats = computed(() => seatsLayouts[currentLayout.value])
+
+// Cadires són sempre les mateixes
+const chairsZoom1 = [
   { top: 130, left: 245 }, { top: 130, left: 323 },
   { top: 225, left: 418 }, { top: 300, left: 418 },
   { top: 400, left: 329 }, { top: 400, left: 251 },
   { top: 300, left: 161 }, { top: 225, left: 161 }
 ]
 
-// Called when a table seat is selected; enters zoom mode for that table
+const chairsZoom2 = [
+  { top: 128, left: 145 }, { top: 172, left: 145 },
+  { top: 212, left: 145 }, { top: 276, left: 145 },
+  { top: 360, left: 145 }, { top: 426, left: 145 },
+  { top: 468, left: 145 }, { top: 508, left: 145 },
+  { top: 128, left: 235 }, { top: 172, left: 235 },
+  { top: 212, left: 235 }, { top: 276, left: 235 }, 
+  { top: 318, left: 235 }, { top: 360, left: 235 }, 
+  { top: 426, left: 235 }, { top: 468, left: 235 },
+  { top: 508, left: 235 },
+  { top: 128, left: 339 }, { top: 172, left: 339 },
+  { top: 212, left: 339 }, { top: 276, left: 339 },
+  { top: 318, left: 339 }, { top: 360, left: 339 },
+  { top: 426, left: 339 }, { top: 468, left: 339 },
+  { top: 508, left: 339 },
+  { top: 128, left: 428 }, { top: 172, left: 428 },
+  { top: 212, left: 428 }, { top: 276, left: 428 },
+  { top: 318, left: 428 }, { top: 360, left: 428 },
+  { top: 426, left: 428 }, { top: 468, left: 428 },
+  { top: 508, left: 428 },
+  { top: 15, left: 167 }, { top: 15, left: 208 },
+  { top: 15, left: 249 }, { top: 15, left: 315 },
+  { top: 15, left: 357 }, { top: 15, left: 399 }
+]
+
+const currentChairs = computed(() => {
+  return selectedTable.value === 11 ? chairsZoom2 : chairsZoom1
+})
+
+// Form
+const addingGuest = ref(false)
+const chairToAdd = ref(null)
+const newGuestName = ref('')
+
+// Quan fas clic a una taula
 function selectSeat(index) {
   selectedTable.value = index + 1
   zoomMode.value = true
   cancelAddGuest()
-  console.log(`table selected ${selectedTable.value}`)
+
+  if (index === 10) {
+    tableZoomImage.value = 'src/assets/zoom2.png'
+  } else {
+    tableZoomImage.value = 'src/assets/zoom1.png'
+  }
+
+  console.log(`Selected table ${selectedTable.value}`)
 }
 
-// State for adding a guest
-const addingGuest = ref(false) 
-const chairToAdd = ref(null)   
-const newGuestName = ref('')   
-
-// Start the add guest process for a specific chair
 function startAddGuest(chairNumber) {
   addingGuest.value = true
   chairToAdd.value = chairNumber
   newGuestName.value = ''
 }
 
-// Confirm and add the new guest to the guest list
 function confirmAddGuest() {
   if (!newGuestName.value.trim()) {
-    alert('Name')
+    alert('Please enter a name')
     return
   }
   guestList.value.push({
@@ -107,19 +171,26 @@ function confirmAddGuest() {
   chairToAdd.value = null
 }
 
-// Cancel the add guest process and reset form state
 function cancelAddGuest() {
   addingGuest.value = false
   newGuestName.value = ''
   chairToAdd.value = null
 }
 
-// Exit zoom mode and reset selection/add guest state
 function exitZoom() {
   zoomMode.value = false
   selectedTable.value = null
   cancelAddGuest()
 }
+
+function logChairPosition(event) {
+  const container = event.currentTarget.getBoundingClientRect()
+  const x = Math.round(event.clientX - container.left)
+  const y = Math.round(event.clientY - container.top)
+  console.log(`{ top: ${y}, left: ${x} },`)
+}
+console.log('Layout actual:', currentLayout.value)
+
 </script>
 
 <style scoped>
@@ -127,8 +198,8 @@ function exitZoom() {
   position: absolute;
   top: 0;
   left: 0;
-  width: 500px;
-  height: 500px;
+  width: 1350px;
+  height: 1000px;
   z-index: 99;
 }
 
@@ -151,7 +222,7 @@ function exitZoom() {
   cursor: pointer;
   display: flex;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
 }
 
 .zoom-container {
@@ -200,19 +271,6 @@ function exitZoom() {
   z-index: 3;
 }
 
-.guest-list {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  max-height: 300px;
-  overflow-y: auto;
-  z-index: 10;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
 .add-guest-form {
   margin-top: 1rem;
   background: #f0f0f0;
@@ -250,4 +308,5 @@ function exitZoom() {
   background-color: #f44336;
   color: white;
 }
+
 </style>
