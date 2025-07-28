@@ -1,5 +1,5 @@
 <template>
-  <button class="list" v-if="open" @click="open = false">
+  <button class="list close-btn" v-if="open" @click="open = false">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="50"
@@ -17,11 +17,11 @@
     </svg>
   </button>
   <aside class="guestList" v-else>
-    <button class="list" @click="open = true">
+    <button class="list open-btn" @click="open = true">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="50"
-        height="50"
+        width="40"
+        height="40"
         viewBox="0 0 24 24"
       >
         <path
@@ -135,10 +135,23 @@ const guestsByFloor = computed(() => {
 }
 
 .list {
-  position: absolute;
-  top: 25px;
-  left: 25px;
   cursor: pointer;
-  z-index: 99;
+  z-index: 120;
+}
+.close-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.open-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  padding: 0;
 }
 </style>

@@ -66,7 +66,7 @@ const seatsLayouts = {
     { top: 300, left: 835 }
   ],
   2: [
-    { top: 400, left: 620 }, { top: 360, left: 620 },
+    { top: 100, left: 200 }, { top: 360, left: 620 },
     { top: 540, left: 620 }, { top: 720, left: 620 },
     { top: 540, left: 850 }, { top: 720, left: 850 },
     { top: 180, left: 1020 }, { top: 360, left: 1020 },
@@ -93,7 +93,6 @@ const seatsLayouts = {
 
 const currentSeats = computed(() => seatsLayouts[currentLayout.value])
 
-// Cadires són sempre les mateixes
 const chairsZoom1 = [
   { top: 130, left: 245 }, { top: 130, left: 323 },
   { top: 225, left: 418 }, { top: 300, left: 418 },
