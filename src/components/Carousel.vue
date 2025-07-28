@@ -5,9 +5,7 @@
     <div class="carousel-container">
       <button @click.stop="restLayout" class="nav-button" aria-label="Previous layout">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-          <path
-            d="M6.325 12.85q-.225-.15-.337-.375T5.874 12t.113-.475t.337-.375l8.15-5.175q.125-.075.263-.112T15 5.825q.4 0 .7.288t.3.712v10.35q0 .425-.3.713t-.7.287q-.125 0-.262-.038t-.263-.112z"
-          />
+          <path d="M6.325 12.85q-.225-.15-.337-.375T5.874 12t.113-.475t.337-.375l8.15-5.175q.125-.075.263-.112T15 5.825q.4 0 .7.288t.3.712v10.35q0 .425-.3.713t-.7.287q-.125 0-.262-.038t-.263-.112z" />
         </svg>
       </button>
 
@@ -28,11 +26,27 @@
 
       <button @click.stop="sumLayout" class="nav-button" aria-label="Next layout">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-          <path
-            d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712"
-          />
+          <path d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712" />
         </svg>
       </button>
+    </div>
+
+    <!-- ZOOM MODAL -->
+    <div v-if="showZoom" class="zoom-modal" @click.self="closeZoom">
+      <div class="zoom-content">
+        <img :src="zoomImagePath" alt="Zoom" class="zoom-img" />
+
+        <button
+          v-for="(chair, idx) in zoomChairs[selectedTableIndex] || []"
+          :key="idx"
+          class="chair-button"
+          :style="{ top: chair.top + '%', left: chair.left + '%' }"
+        >
+          {{ idx + 1 }}
+        </button>
+
+        <button class="close-btn" @click="closeZoom">Close</button>
+      </div>
     </div>
   </div>
 </template>
@@ -42,6 +56,8 @@ import { ref, computed, watch } from "vue";
 
 const layoutNum = ref(1);
 const selectedSeat = ref(null);
+const selectedTableIndex = ref(null);
+const showZoom = ref(false);
 
 const layouts = [
   {
@@ -52,7 +68,7 @@ const layouts = [
       { x: 29.5, y: 58 },
       { x: 29.5, y: 80 },
       { x: 42, y: 29 },
-      { x: 41.5, y: 58},
+      { x: 41.5, y: 58 },
       { x: 41.5, y: 80 },
       { x: 53, y: 14 },
       { x: 53, y: 36 },
@@ -84,7 +100,6 @@ const layouts = [
       { x: 46, y: 28 },
       { x: 45.2, y: 63 },
       { x: 52, y: 28 },
-      
     ],
   },
   {
@@ -107,9 +122,8 @@ const layouts = [
   },
 ];
 
-const currentLayout = computed(() => layouts.find((l) => l.id === layoutNum.value));
-
 const guestList = ref([]);
+const currentLayout = computed(() => layouts.find((l) => l.id === layoutNum.value));
 
 watch(
   layoutNum,
@@ -120,8 +134,141 @@ watch(
       selectedSeat.value = null;
     }
   },
-  { immediate: false }
+  { immediate: true }
 );
+
+// Coordenades dels botons dins la imatge de zoom per a cada taula
+const zoomChairs = {
+  0: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+
+
+  ],
+  1: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+  2: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+  3: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+  4: [
+      { top: 5, left: 20 },  { top: 5, left: 30 },
+      { top: 5, left: 40 }, { top: 5, left: 57},
+      { top: 5, left: 67 }, { top: 5, left: 77 },
+
+      { top: 23, left: 13 }, { top: 30, left: 13 },
+      { top: 37, left: 13 }, { top: 48, left: 13 },
+      { top: 62, left: 13 }, { top: 73, left: 13 },
+      { top: 80, left: 13 }, { top: 87, left: 13 },
+
+      { top: 23, left: 36 }, { top: 30, left: 36 },
+      { top: 37, left: 36 }, { top: 48, left: 36 },
+      { top: 55, left: 36 },
+      { top: 62, left: 36 }, { top: 73, left: 36 },
+      { top: 80, left: 36 }, { top: 87, left: 36 },
+
+      { top: 576, left: 150 },
+      { top: 146, left: 271 }, { top: 192, left: 271 },
+      { top: 238, left: 271 }, { top: 314, left: 271 },
+      { top: 359, left: 271 }, { top: 406, left: 271 },
+      { top: 480, left: 271 }, { top: 527, left: 271 }, 
+      { top: 574, left: 271 },
+      { top: 146, left: 368 }, { top: 192, left: 368 },
+      { top: 238, left: 368 }, { top: 314, left: 368 },
+      { top: 359, left: 368 }, { top: 406, left: 368 },
+      { top: 480, left: 368 },  { top: 527, left: 368 },
+      { top: 574, left: 368 },
+
+  ],
+
+   5: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+  6: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+    7: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+    8: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ], 
+
+  9: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+    10: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+    11: [
+    { top: 11, left: 40 }, { top: 11, left: 60 },
+    { top: 34, left: 80 }, { top: 55, left: 80 },
+    { top: 80, left: 60 }, { top: 80, left: 40 }, 
+    { top: 55, left: 19 }, { top: 33, left: 19 }, 
+  ],
+
+
+};
+
+const zoomImagePath = computed(() => {
+  if (selectedTableIndex.value === null) return "";
+  // Exemples de ruta segons taula
+  if (selectedTableIndex.value === 4) {
+    return new URL("/src/assets/zoom2.png", import.meta.url).href;
+  } else {
+    return new URL("/src/assets/zoom1.png", import.meta.url).href;
+  }
+});
+
+const selectSeat = (index) => {
+  selectedSeat.value = index;
+  selectedTableIndex.value = index;
+  showZoom.value = true;
+};
+
+const closeZoom = () => {
+  showZoom.value = false;
+  selectedTableIndex.value = null;
+};
 
 const sumLayout = () => {
   layoutNum.value = layoutNum.value < layouts.length ? layoutNum.value + 1 : 1;
@@ -131,19 +278,7 @@ const restLayout = () => {
   layoutNum.value = layoutNum.value === 1 ? layouts.length : layoutNum.value - 1;
 };
 
-const selectSeat = (index) => {
-  selectedSeat.value = index;
-};
 
-const handleClick = (event) => {
-  const container = event.currentTarget;
-  const rect = container.getBoundingClientRect();
-
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-
-  console.log(`x: ${x.toFixed(0)}px, y: ${y.toFixed(0)}px`);
-};
 </script>
 
 <style scoped>
@@ -195,12 +330,12 @@ const handleClick = (event) => {
   display: block;
   border-radius: 8px;
   user-select: none;
-  pointer-events: none;
+  /* He eliminat pointer-events: none perquè el clic funcioni */
 }
 
 .seat-number {
   position: absolute;
-  background-color: #007bffcc;
+  background-color: #be9772;
   color: white;
   width: 32px;
   height: 32px;
@@ -215,49 +350,66 @@ const handleClick = (event) => {
   transition: background-color 0.2s ease;
   border: 2px solid white;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .seat-number:hover {
-  background-color: #0056b3cc;
+  background-color: #0057b3;
 }
 
-.guest-form {
-  margin-top: 2rem;
+.zoom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
-.guest-form input {
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  font-size: 1rem;
-  width: 200px;
+.zoom-content {
+  position: relative;
+  width: 500px;
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+.zoom-img {
+  width: 100%;
+  height: auto;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  border-radius: 8px;
+  object-fit: contain;
 }
 
-.guest-form button {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
+.chair-button {
+  position: absolute;
+  background-color: rgb(74, 182, 245);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transform: translate(-50%, -50%);
   cursor: pointer;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  border: 2px solid white;
+
 }
 
-.guest-list {
-  margin-top: 2rem;
-  text-align: center;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.guest-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.guest-list li {
-  margin-bottom: 0.3rem;
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 </style>
