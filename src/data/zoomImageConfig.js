@@ -1,0 +1,1 @@
+// TODO: implementar les imatges custom per cada layout
