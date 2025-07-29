@@ -168,7 +168,7 @@ const zoomChairs = {
   ],
 
   4: [
-      { top: 5, left: 20 },  { top: 5, left: 30 },
+      { top: 5, left: 20 }, { top: 5, left: 30 },
       { top: 5, left: 40 }, { top: 5, left: 57},
       { top: 5, left: 67 }, { top: 5, left: 77 },
 
@@ -179,22 +179,22 @@ const zoomChairs = {
 
       { top: 23, left: 36 }, { top: 30, left: 36 },
       { top: 37, left: 36 }, { top: 48, left: 36 },
-      { top: 55, left: 36 },
-      { top: 62, left: 36 }, { top: 73, left: 36 },
-      { top: 80, left: 36 }, { top: 87, left: 36 },
+      { top: 55, left: 36 }, { top: 62, left: 36 }, 
+      { top: 73, left: 36 }, { top: 80, left: 36 }, 
+      { top: 87, left: 36 },
 
-      { top: 576, left: 150 },
-      { top: 146, left: 271 }, { top: 192, left: 271 },
-      { top: 238, left: 271 }, { top: 314, left: 271 },
-      { top: 359, left: 271 }, { top: 406, left: 271 },
-      { top: 480, left: 271 }, { top: 527, left: 271 }, 
-      { top: 574, left: 271 },
-      { top: 146, left: 368 }, { top: 192, left: 368 },
-      { top: 238, left: 368 }, { top: 314, left: 368 },
-      { top: 359, left: 368 }, { top: 406, left: 368 },
-      { top: 480, left: 368 },  { top: 527, left: 368 },
-      { top: 574, left: 368 },
+      { top: 23, left: 62 },  { top: 30, left: 62 },
+      { top: 37, left: 62 },  { top: 48, left: 62 },
+      { top: 55, left: 62 },  { top: 62, left: 62 },
+      { top: 73, left: 62 },  { top: 80, left: 62 },
+      { top: 87, left: 62 },
 
+      { top: 23, left: 84 },  { top: 30, left: 84 },
+      { top: 37, left: 84 },  { top: 48, left: 84 },
+      { top: 55, left: 84 },  { top: 62, left: 84 },
+      { top: 73, left: 84 },  { top: 80, left: 84 },
+      { top: 87, left: 84 },
+      
   ],
 
    5: [
@@ -330,7 +330,6 @@ const restLayout = () => {
   display: block;
   border-radius: 8px;
   user-select: none;
-  /* He eliminat pointer-events: none perquè el clic funcioni */
 }
 
 .seat-number {
