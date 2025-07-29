@@ -41,8 +41,26 @@
           :key="idx"
           class="chair-button"
           :style="{ top: chair.top + '%', left: chair.left + '%' }"
+          @click.stop="startEditingChair(selectedTableIndex, idx)"
         >
-          {{ idx + 1 }}
+          <template v-if="isEditingChair(selectedTableIndex, idx)">
+            <input
+              class="chair-input"
+              type="text"
+              :value="getChairName(selectedTableIndex, idx)"
+              @blur="(e) => saveChairName(e, selectedTableIndex, idx)"
+              @keydown.enter.prevent="(e) => saveChairName(e, selectedTableIndex, idx)"
+              autofocus
+            />
+          </template>
+          <template v-else>
+            <span v-if="getChairName(selectedTableIndex, idx)" style="font-weight: bold;">
+              {{ getChairName(selectedTableIndex, idx) }}
+            </span>
+            <span v-else>
+              {{ idx + 1 }}
+            </span>
+          </template>
         </button>
 
         <button class="close-btn" @click="closeZoom">Close</button>
@@ -58,6 +76,33 @@ const layoutNum = ref(1);
 const selectedSeat = ref(null);
 const selectedTableIndex = ref(null);
 const showZoom = ref(false);
+
+const chairNames = ref({});
+const editingChair = ref({ tableIndex: null, chairIndex: null });
+
+const startEditingChair = (tableIndex, chairIndex) => {
+  editingChair.value = { tableIndex, chairIndex };
+};
+
+const saveChairName = (event, tableIndex, chairIndex) => {
+  const name = event.target.value.trim();
+  if (!chairNames.value[tableIndex]) {
+    chairNames.value[tableIndex] = {};
+  }
+  chairNames.value[tableIndex][chairIndex] = name;
+  editingChair.value = { tableIndex: null, chairIndex: null };
+};
+
+const getChairName = (tableIndex, chairIndex) => {
+  return chairNames.value[tableIndex]?.[chairIndex] || '';
+};
+
+const isEditingChair = (tableIndex, chairIndex) => {
+  return (
+    editingChair.value.tableIndex === tableIndex &&
+    editingChair.value.chairIndex === chairIndex
+  );
+};
 
 const layouts = [
   {
@@ -137,7 +182,6 @@ watch(
   { immediate: true }
 );
 
-// Coordenades dels botons dins la imatge de zoom per a cada taula
 const zoomChairs = {
   0: [
     { top: 11, left: 40 }, { top: 11, left: 60 },
@@ -245,13 +289,10 @@ const zoomChairs = {
     { top: 80, left: 60 }, { top: 80, left: 40 }, 
     { top: 55, left: 19 }, { top: 33, left: 19 }, 
   ],
-
-
 };
 
 const zoomImagePath = computed(() => {
   if (selectedTableIndex.value === null) return "";
-  // Exemples de ruta segons taula
   if (selectedTableIndex.value === 4) {
     return new URL("/src/assets/zoom2.png", import.meta.url).href;
   } else {
@@ -277,8 +318,6 @@ const sumLayout = () => {
 const restLayout = () => {
   layoutNum.value = layoutNum.value === 1 ? layouts.length : layoutNum.value - 1;
 };
-
-
 </script>
 
 <style scoped>
@@ -397,7 +436,22 @@ const restLayout = () => {
   transform: translate(-50%, -50%);
   cursor: pointer;
   border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.chair-input {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-weight: bold;
 }
 
 .close-btn {
