@@ -211,7 +211,260 @@ export const zoomChairs = {
     },
     layout3: {
         0: [
-            
+            { top: 10, left: 42 }, { top: 16.5, left: 42 }, { top: 23, left: 42 },
+            { top: 33, left: 42 }, { top: 39.5, left: 42 }, { top: 46, left: 42 },
+            { top: 56.5, left: 42 }, { top: 63, left: 42 }, { top: 69.5, left: 42 },
+            { top: 79.5, left: 42 }, { top: 86, left: 42 }, { top: 92.5, left: 42 },
+
+            { top: 10, left: 65 }, { top: 16.5, left: 65 }, { top: 23, left: 65 },
+            { top: 33, left: 65 }, { top: 39.5, left: 65 }, { top: 46, left: 65 },
+            { top: 56.5, left: 65 }, { top: 63, left: 65 }, { top: 69.5, left: 65 },
+            { top: 79.5, left: 65 }, { top: 86, left: 65 }, { top: 92.5, left: 65 },
+        ],
+        1: [
+            { top: 10, left: 42 }, { top: 16.5, left: 42 }, { top: 23, left: 42 },
+            { top: 33, left: 42 }, { top: 39.5, left: 42 }, { top: 46, left: 42 },
+            { top: 56.5, left: 42 }, { top: 63, left: 42 }, { top: 69.5, left: 42 },
+            { top: 79.5, left: 42 }, { top: 86, left: 42 }, { top: 92.5, left: 42 },
+
+            { top: 10, left: 65 }, { top: 16.5, left: 65 }, { top: 23, left: 65 },
+            { top: 33, left: 65 }, { top: 39.5, left: 65 }, { top: 46, left: 65 },
+            { top: 56.5, left: 65 }, { top: 63, left: 65 }, { top: 69.5, left: 65 },
+            { top: 79.5, left: 65 }, { top: 86, left: 65 }, { top: 92.5, left: 65 },
+        ],
+        2: [
+            { top: 9, left: 41 }, { top: 13.5, left: 41 }, 
+            { top: 25, left: 41 }, { top: 29.5, left: 41 },
+            { top: 40.5, left: 41 }, { top: 45, left: 41 },
+            { top: 56, left: 41 }, { top: 61, left: 41 },
+            { top: 72, left: 41 }, { top: 76.5, left: 41 },
+            { top: 87.5, left: 41 }, { top: 92.5, left: 41 },
+
+            { top: 9, left: 62 }, { top: 13.5, left: 62 }, 
+            { top: 25, left: 62 }, { top: 29.5, left: 62 },
+            { top: 40.5, left: 62 }, { top: 45, left: 62 },
+            { top: 56, left: 62 }, { top: 61, left: 62 },
+            { top: 72, left: 62 }, { top: 76.5, left: 62 },
+            { top: 87.5, left: 62 }, { top: 92.5, left: 62 },
+        ],
+        3: [
+            { top: 10, left: 42 }, { top: 16.5, left: 42 }, { top: 23, left: 42 },
+            { top: 33, left: 42 }, { top: 39.5, left: 42 }, { top: 46, left: 42 },
+            { top: 56.5, left: 42 }, { top: 63, left: 42 }, { top: 69.5, left: 42 },
+            { top: 79.5, left: 42 }, { top: 86, left: 42 }, { top: 92.5, left: 42 },
+
+            { top: 10, left: 65 }, { top: 16.5, left: 65 }, { top: 23, left: 65 },
+            { top: 33, left: 65 }, { top: 39.5, left: 65 }, { top: 46, left: 65 },
+            { top: 56.5, left: 65 }, { top: 63, left: 65 }, { top: 69.5, left: 65 },
+            { top: 79.5, left: 65 }, { top: 86, left: 65 }, { top: 92.5, left: 65 },
+        ],
+        4: [
+            { top: 9, left: 41 }, { top: 14, left: 41 },
+            { top: 25, left: 41 }, { top: 29.5, left: 41 },
+            { top: 40.5, left: 41 }, { top: 45, left: 41 },
+            { top: 56, left: 41 }, { top: 61, left: 41 },
+            { top: 72, left: 41 }, { top: 76.5, left: 41 },
+            { top: 87.5, left: 41 }, { top: 92.5, left: 41 },
+
+            { top: 9, left: 62 }, { top: 14, left: 62 },
+            { top: 25, left: 62 }, { top: 29.5, left: 62 },
+            { top: 40.5, left: 62 }, { top: 45, left: 62 },
+            { top: 56, left: 62 }, { top: 61, left: 62 },
+            { top: 72, left: 62 }, { top: 76.5, left: 62 },
+            { top: 87.5, left: 62 }, { top: 92.5, left: 62 },
+        ],
+        5: [
+            { top: 10, left: 42 }, { top: 16.5, left: 42 }, { top: 23, left: 42 },
+            { top: 33, left: 42 }, { top: 39.5, left: 42 }, { top: 46, left: 42 },
+            { top: 56.5, left: 42 }, { top: 63, left: 42 }, { top: 69.5, left: 42 },
+            { top: 79.5, left: 42 }, { top: 86, left: 42 }, { top: 92.5, left: 42 },
+
+            { top: 10, left: 64 }, { top: 16.5, left: 64 }, { top: 23, left: 64 },
+            { top: 33, left: 64 }, { top: 39.5, left: 64 }, { top: 46, left: 64 },
+            { top: 56.5, left: 64 }, { top: 63, left: 64 }, { top: 69.5, left: 64 },
+            { top: 79.5, left: 64 }, { top: 86, left: 64 }, { top: 92.5, left: 64 },
+        ],
+        6: [
+            { top: 9, left: 41 }, { top: 16, left: 41 }, { top: 22, left: 41 },
+            { top: 32, left: 41 }, { top: 39, left: 41 }, { top: 45, left: 41 },
+            { top: 55, left: 41 }, { top: 62, left: 41 }, { top: 68, left: 41 },
+            { top: 78, left: 41 }, { top: 85, left: 41 }, { top: 91, left: 41 },
+
+            { top: 9, left: 63 }, { top: 16, left: 63 }, { top: 22, left: 63 },
+            { top: 32, left: 63 }, { top: 39, left: 63 }, { top: 45, left: 63 },
+            { top: 62, left: 63 }, { top: 68, left: 63 }, { top: 78, left: 63 }, 
+            { top: 85, left: 63 }, { top: 91, left: 63 },
+        ],
+        7: [
+            { top: 10, left: 38 }, { top: 18, left: 38 }, { top: 27, left: 38 },
+            { top: 41, left: 38 }, { top: 49, left: 38 }, { top: 58, left: 38 },
+            { top: 72, left: 38 }, { top: 80, left: 38 }, { top: 89, left: 38 },
+
+            { top: 10, left: 62 }, { top: 18, left: 62 }, { top: 27, left: 62 },
+            { top: 41, left: 62 }, { top: 49, left: 62 }, { top: 58, left: 62 },
+            { top: 72, left: 62 }, { top: 80, left: 62 }, { top: 89, left: 62 },
+        ],
+        8: [
+            { top: 10, left: 42 }, { top: 16.5, left: 42 }, { top: 23, left: 42 },
+            { top: 33, left: 42 }, { top: 39.5, left: 42 }, { top: 46, left: 42 },
+            { top: 56.5, left: 42 }, { top: 63, left: 42 }, { top: 69.5, left: 42 },
+            { top: 79.5, left: 42 }, { top: 86, left: 42 }, { top: 92.5, left: 42 },
+
+            { top: 10, left: 65 }, { top: 16.5, left: 65 }, { top: 23, left: 65 },
+            { top: 33, left: 65 }, { top: 39.5, left: 65 }, { top: 46, left: 65 },
+            { top: 56.5, left: 65 }, { top: 63, left: 65 }, { top: 69.5, left: 65 },
+            { top: 79.5, left: 65 }, { top: 86, left: 65 }, { top: 92.5, left: 65 },
+        ]
+    },
+    layout4: {
+        0: [
+            { top: 8, left: 43 }, { top: 14.5, left: 43 }, { top: 21, left: 43 },
+            { top: 31, left: 43 }, { top: 38, left: 43 }, { top: 44, left: 43 },
+            { top: 54.5, left: 43 }, { top: 61, left: 43 }, { top: 67.5, left: 43 },
+            { top: 77.5, left: 43 }, { top: 84, left: 43 }, { top: 90, left: 43 },
+
+            { top: 8, left: 64 }, { top: 14.5, left: 64 }, { top: 21, left: 64 },
+            { top: 31, left: 64 }, { top: 38, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 77.5, left: 64 }, { top: 84, left: 64 }, { top: 90, left: 64 },
+        ],
+        1: [
+            { top: 8, left: 43 }, { top: 14.5, left: 43 }, { top: 21, left: 43 },
+            { top: 31, left: 43 }, { top: 38, left: 43 }, { top: 44, left: 43 },
+            { top: 54.5, left: 43 }, { top: 61, left: 43 }, { top: 67.5, left: 43 },
+            { top: 77.5, left: 43 }, { top: 84, left: 43 }, { top: 90, left: 43 },
+
+            { top: 8, left: 64 }, { top: 14.5, left: 64 }, { top: 21, left: 64 },
+            { top: 31, left: 64 }, { top: 38, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 77.5, left: 64 }, { top: 84, left: 64 }, { top: 90, left: 64 },
+        ],
+        2: [
+            { top: 8, left: 40 }, { top: 12.5, left: 40 },
+            { top: 24, left: 40 }, { top: 28.5, left: 40 },
+            { top: 40, left: 40 }, { top: 44.5, left: 40 },
+            { top: 55.5, left: 40 }, { top: 60.5, left: 40 },
+            { top: 71.5, left: 40 }, { top: 76.5, left: 40 },
+            { top: 87.5, left: 40 }, { top: 92, left: 40 },
+
+            { top: 8, left: 64 }, { top: 12.5, left: 64 },
+            { top: 24, left: 64 }, { top: 28.5, left: 64 },
+            { top: 40, left: 64 }, { top: 44.5, left: 64 },
+            { top: 55.5, left: 64 }, { top: 60.5, left: 64 },
+            { top: 71.5, left: 64 }, { top: 76.5, left: 64 },
+            { top: 87.5, left: 64 }, { top: 92, left: 64 },
+        ],
+        3: [
+            { top: 8, left: 43 }, { top: 14.5, left: 43 }, { top: 21, left: 43 },
+            { top: 31, left: 43 }, { top: 38, left: 43 }, { top: 44, left: 43 },
+            { top: 54.5, left: 43 }, { top: 61, left: 43 }, { top: 67.5, left: 43 },
+            { top: 77.5, left: 43 }, { top: 84, left: 43 }, { top: 90, left: 43 },
+
+            { top: 8, left: 64 }, { top: 14.5, left: 64 }, { top: 21, left: 64 },
+            { top: 31, left: 64 }, { top: 38, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 77.5, left: 64 }, { top: 84, left: 64 }, { top: 90, left: 64 },
+        ],
+        4: [
+            { top: 8, left: 40 }, { top: 12.5, left: 40 },
+            { top: 24, left: 40 }, { top: 28.5, left: 40 },
+            { top: 40, left: 40 }, { top: 44.5, left: 40 },
+            { top: 55.5, left: 40 }, { top: 60.5, left: 40 },
+            { top: 71.5, left: 40 }, { top: 76.5, left: 40 },
+            { top: 87.5, left: 40 }, { top: 92, left: 40 },
+
+            { top: 8, left: 64 }, { top: 12.5, left: 64 },
+            { top: 24, left: 64 }, { top: 28.5, left: 64 },
+            { top: 40, left: 64 }, { top: 44.5, left: 64 },
+            { top: 55.5, left: 64 }, { top: 60.5, left: 64 },
+            { top: 71.5, left: 64 }, { top: 76.5, left: 64 },
+            { top: 87.5, left: 64 }, { top: 92, left: 64 },
+        ],
+        5: [
+            { top: 8, left: 43 }, { top: 14.5, left: 43 }, { top: 21, left: 43 },
+            { top: 31, left: 43 }, { top: 38, left: 43 }, { top: 44, left: 43 },
+            { top: 54.5, left: 43 }, { top: 61, left: 43 }, { top: 67.5, left: 43 },
+            { top: 77.5, left: 43 }, { top: 84, left: 43 }, { top: 90, left: 43 },
+
+            { top: 8, left: 64 }, { top: 14.5, left: 64 }, { top: 21, left: 64 },
+            { top: 31, left: 64 }, { top: 38, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 77.5, left: 64 }, { top: 84, left: 64 }, { top: 90, left: 64 },
+        ],
+        6: [
+            { top: 8.5, left: 42 }, { top: 15, left: 42 }, { top: 21.5, left: 42 },
+            { top: 32, left: 42 }, { top: 39, left: 42 }, { top: 45, left: 42 },
+            { top: 56, left: 42 }, { top: 62.5, left: 42 }, { top: 69, left: 42 },
+            { top: 80, left: 42 }, { top: 86.5, left: 42 }, { top: 93, left: 42 },
+
+            { top: 8.5, left: 64 }, { top: 15, left: 64 }, { top: 21.5, left: 64 },
+            { top: 32, left: 64 }, { top: 39, left: 64 }, { top: 45, left: 64 },
+            { top: 62.5, left: 64 }, { top: 69, left: 64 }, { top: 80, left: 64 }, 
+            { top: 86.5, left: 64 }, { top: 93, left: 64 },
+        ],
+        7: [
+            { top: 7.5, left: 42 }, { top: 14, left: 42 }, { top: 20.5, left: 42 },
+            { top: 31, left: 42 }, { top: 37.5, left: 42 }, { top: 44, left: 42 },
+            { top: 54.5, left: 42 }, { top: 61, left: 42 }, { top: 67.5, left: 42 },
+            { top: 78.5, left: 42 }, { top: 85, left: 42 }, { top: 91.5, left: 42 },
+
+            { top: 7.5, left: 65 }, { top: 14, left: 65 }, { top: 20.5, left: 65 },
+            { top: 37.5, left: 65 }, { top: 44, left: 65 }, { top: 54.5, left: 65 }, 
+            { top: 61, left: 65 }, { top: 67.5, left: 65 }, { top: 78.5, left: 65 }, 
+            { top: 85, left: 65 }, { top: 91.5, left: 65 },
+        ],
+        8: [
+            { top: 8, left: 43 }, { top: 14.5, left: 43 }, { top: 21, left: 43 },
+            { top: 31, left: 43 }, { top: 38, left: 43 }, { top: 44, left: 43 },
+            { top: 54.5, left: 43 }, { top: 61, left: 43 }, { top: 67.5, left: 43 },
+            { top: 77.5, left: 43 }, { top: 84, left: 43 }, { top: 90, left: 43 },
+
+            { top: 8, left: 64 }, { top: 14.5, left: 64 }, { top: 21, left: 64 },
+            { top: 31, left: 64 }, { top: 38, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 77.5, left: 64 }, { top: 84, left: 64 }, { top: 90, left: 64 },
+        ],
+        9: [
+            { top: 8, left: 43 }, { top: 14.5, left: 43 }, { top: 21, left: 43 },
+            { top: 31, left: 43 }, { top: 38, left: 43 }, { top: 44, left: 43 },
+            { top: 54.5, left: 43 }, { top: 61, left: 43 }, { top: 67.5, left: 43 },
+            { top: 77.5, left: 43 }, { top: 84, left: 43 }, { top: 90, left: 43 },
+
+            { top: 8, left: 64 }, { top: 14.5, left: 64 }, { top: 21, left: 64 },
+            { top: 31, left: 64 }, { top: 38, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 77.5, left: 64 }, { top: 84, left: 64 }, { top: 90, left: 64 },
+        ],
+        10: [
+            { top: 8, left: 43 }, { top: 14.5, left: 43 }, { top: 21, left: 43 },
+            { top: 31, left: 43 }, { top: 38, left: 43 }, { top: 44, left: 43 },
+            { top: 54.5, left: 43 }, { top: 61, left: 43 }, { top: 67.5, left: 43 },
+            { top: 77.5, left: 43 }, { top: 84, left: 43 }, { top: 90, left: 43 },
+
+            { top: 8, left: 64 }, { top: 14.5, left: 64 }, { top: 21, left: 64 },
+            { top: 31, left: 64 }, { top: 38, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 77.5, left: 64 }, { top: 84, left: 64 }, { top: 90, left: 64 },
+        ],
+        11: [
+            { top: 7, left: 42 }, { top: 13.5, left: 42 }, { top: 20, left: 42 },
+            { top: 31, left: 42 }, { top: 44, left: 42 }, { top: 54.5, left: 42 }, 
+            { top: 61, left: 42 }, { top: 67.5, left: 42 }, { top: 78, left: 42 },
+            { top: 85, left: 42 }, { top: 91.5, left: 42 },
+
+            { top: 7, left: 64 }, { top: 13.5, left: 64 }, { top: 20, left: 64 },
+            { top: 31, left: 64 }, { top: 37, left: 64 }, { top: 44, left: 64 },
+            { top: 54.5, left: 64 }, { top: 61, left: 64 }, { top: 67.5, left: 64 },
+            { top: 78, left: 64 }, { top: 85, left: 64 }, { top: 91.5, left: 64 },
+        ],
+        12: [
+            { top: 10, left: 40 }, { top: 19, left: 40 }, { top: 27, left: 40 },
+            { top: 41, left: 40 }, { top: 49, left: 40 }, { top: 58, left: 40 },
+            { top: 72, left: 40 }, { top: 80, left: 40 }, { top: 89, left: 40 },
+
+            { top: 10, left: 65 }, { top: 19, left: 65 }, { top: 27, left: 65 },
+            { top: 41, left: 65 }, { top: 49, left: 65 }, { top: 58, left: 65 },
+            { top: 72, left: 65 }, { top: 80, left: 65 }, { top: 89, left: 65 },
         ]
     }
 }

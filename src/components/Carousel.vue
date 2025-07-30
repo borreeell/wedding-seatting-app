@@ -35,10 +35,10 @@
     <div v-if="showZoom" class="zoom-modal" @click.self="closeZoom">
       <div class="zoom-content">
         <img 
-          :src="zoomImagePath" 
+          :src="zoomImageData.src" 
           alt="Zoom" 
           class="zoom-img"
-          :class="{ 'custom_tables_size_layout2': layoutNum === 2 && selectedTableIndex != 4 }"
+          :style="zoomImageData.style"
         />
 
         <button
@@ -60,6 +60,7 @@
 import { ref, computed, watch } from "vue";
 import { tableButtons } from "@/data/tableButtons";
 import { zoomChairs } from "@/data/zoomChairs";
+import { zoomImageConfig } from "@/data/zoomImageConfig";
 
 const layouts = tableButtons;
 
@@ -92,27 +93,17 @@ const chairsForSelectedTable = computed(() => {
   return zoomChairs[layoutKey]?.[selectedTableIndex.value] || [];
 });
 
-const zoomImagePath = computed(() => {
-  if (selectedTableIndex.value === null) return "";
+const zoomImageData = computed(() => {
+  const layoutKey = `layout${layoutNum.value}`;
+  const config = zoomImageConfig[layoutKey] || {};
+  const index = selectedTableIndex.value;
 
-  if (layoutNum.value === 1 && selectedTableIndex.value === 4 ) {
-    return new URL("/src/assets/big_table_layout1.png", import.meta.url).href;
+  if (index === null) {
+    return { src: "", style: {} };
   }
 
-  if (layoutNum.value === 2 && selectedTableIndex.value != 4) {
-    return new URL("/src/assets/zoom3.png", import.meta.url).href;
-  }
-
-  if (layoutNum.value === 2 && selectedTableIndex.value === 4) {
-    return new URL("/src/assets/zoom4.png", import.meta.url).href;
-  }
-
-  if (layoutNum.value === 3 && selectedTableIndex.value === 0) {
-    return new URL("/src/assets/zoom8.png", import.meta.url).href;
-  }
-
-  return new URL("/src/assets/small_table_layout1.png", import.meta.url).href;
-});
+  return config[index] || config.default || { src: "", style: {} };
+})
 
 const selectSeat = (index) => {
   selectedSeat.value = index;
@@ -236,15 +227,6 @@ const restLayout = () => {
   display: block;
   border-radius: 8px;
   object-fit: contain;
-}
-
-.custom_tables_size_layout2 {
-  width: 230px;
-  height: auto;
-  display: block;
-  border-radius: 8px;
-  object-fit: contain;
-  margin-left: 150px;
 }
 
 .chair-button {
