@@ -53,7 +53,7 @@
       <h3>Floor {{ floor }}:</h3>
       <ul>
         <li v-for="guest in guests" :key="guest.id">
-          {{ guest.name }} - Chair {{ guest.chair }}, Table {{ guest.table }}
+          {{ guest.name }} - Table {{ guest.table }}, Chair {{ guest.chair }}
         </li>
       </ul>
     </div>
@@ -77,6 +77,7 @@ const fetchGuests = async () => {
   try {
     const { data } = await api.getTables();
 
+    console.log("Fetching guests...")
     const parsed = data
       .filter((row) => row.guest_name) // Only seats with guests
       .map((row, index) => ({
@@ -131,6 +132,8 @@ const filteredGuestsByFloor = computed(() => {
 
   return grouped;
 })
+
+defineExpose({ fetchGuests })
 </script>
 
 <style scoped>

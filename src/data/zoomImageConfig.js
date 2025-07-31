@@ -29,7 +29,7 @@ export const zoomImageConfig = {
     layout2: {
         default: {
             src: new URL("/layout2/default_table_layout2.png", import.meta.url).href,
-            style: commonStyle230
+            style: commonStyle210
         },
         4: {
             src: new URL("/layout2/table5_layout2.png", import.meta.url).href,

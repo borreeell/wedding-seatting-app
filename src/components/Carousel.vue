@@ -18,7 +18,6 @@
           class="seat-number"
           :style="{ top: table.y + '%', left: table.x + '%' }"
           @click.stop="selectSeat(index)"
-          :title="guestList[index]?.name || 'Unassigned'"
         >
           {{ index + 1 }}
         </div>
@@ -63,20 +62,22 @@
           id="chairName"
           type="text"
           v-model="chairNameInput"
-          @keyup.enter="saveChairName"
+          @keyup.enter="saveGuestName"
           placeholder="Name"
         />
         <button @click="saveChairName">Save</button>
+        <button @click="deleteGuest">Delete</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
-import { tableButtons } from "@/data/tableButtons";
-import { zoomChairs } from "@/data/zoomChairs";
-import { zoomImageConfig } from "@/data/zoomImageConfig";
+import { ref, computed, watch, onMounted } from 'vue';
+import { tableButtons } from '@/data/tableButtons';
+import { zoomChairs } from '@/data/zoomChairs';
+import { zoomImageConfig } from '@/data/zoomImageConfig';
+import api from '@/services/api';
 
 const layouts = tableButtons;
 
@@ -86,25 +87,37 @@ const selectedTableIndex = ref(null);
 const selectedChairIndex = ref(null);
 const showZoom = ref(false);
 const chairNameInput = ref("");
-const guestList = ref([]);
+
+const tablesData = ref([]);
+const seatIdMap = ref({});
+const emit = defineEmits(["guests"])
+
+onMounted(async () => {
+  try {
+    const response = await api.getTables();
+    tablesData.value = response.data;
+
+    // Build the map: layout -> layout -> table -> chair -> seat_id
+    const tempMap = {};
+    for (const seat of tablesData.value) {
+      const layoutKey = `layout${seat.floor}`;
+      const tableIndex = seat.table_number - 1;
+      const chairIndex = seat.seat_number - 1;
+
+      if (!tempMap[layoutKey]) tempMap[layoutKey] = {};
+      if (!tempMap[layoutKey][tableIndex]) tempMap[layoutKey][tableIndex] = {};
+
+      tempMap[layoutKey][tableIndex][chairIndex] = seat.seat_id;
+    }
+    seatIdMap.value = tempMap;
+  } catch (err) {
+    console.error("Error loading seat data:", err);
+  }
+});
 
 const currentLayout = computed(() => {
   return layouts.find(l => l.id === `layout${layoutNum.value}`) || { tables: [] };
 });
-
-watch(
-  layoutNum,
-  () => {
-    const layout = layouts.find((l) => l.id === `layout${layoutNum.value}`);
-    if (layout) {
-      guestList.value = layout.tables.map(() => ({
-        chairs: []
-      }));
-      selectedSeat.value = null;
-    }
-  },
-  { immediate: true }
-);
 
 const chairsForSelectedTable = computed(() => {
   const layoutKey = `layout${layoutNum.value}`;
@@ -116,11 +129,7 @@ const zoomImageData = computed(() => {
   const layoutKey = `layout${layoutNum.value}`;
   const config = zoomImageConfig[layoutKey] || {};
   const index = selectedTableIndex.value;
-
-  if (index === null) {
-    return { src: "", style: {} };
-  }
-
+  if (index === null) return { src: "", style: {} };
   return config[index] || config.default || { src: "", style: {} };
 });
 
@@ -140,29 +149,78 @@ const closeZoom = () => {
 
 const handleChairClick = (chairIndex) => {
   selectedChairIndex.value = chairIndex;
-  const chairName = guestList.value[selectedTableIndex.value]?.chairs?.[chairIndex] || "";
-  chairNameInput.value = chairName;
+
+  const layoutKey = `layout${layoutNum.value}`;
+  const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[chairIndex];
+  const seat = tablesData.value.find(s => s.seat_id === seatId);
+
+  chairNameInput.value = seat?.guest_name || "";
 };
 
-const saveChairName = () => {
+const saveGuestName = async () => {
   if (
     selectedTableIndex.value === null ||
-    selectedChairIndex.value === null
-  )
+    selectedChairIndex.value === null ||
+    !chairNameInput.value
+  ) return;
+
+  const layoutKey = `layout${layoutNum.value}`;
+  const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
+
+  if (!seatId) {
+    alert("Seat ID not found");
     return;
+  }
 
-  const table = guestList.value[selectedTableIndex.value];
-  if (!table.chairs) table.chairs = [];
+  try {
+    const response = await api.addGuest({
+      name: chairNameInput.value,
+      id_seat: seatId,
+    });
 
-  table.chairs[selectedChairIndex.value] = chairNameInput.value;
-  chairNameInput.value = "";
-  selectedChairIndex.value = null;
+    emit("guests")
+
+    console.log("Guest saved", response.data);
+    closeZoom();
+  } catch (error) {
+    console.error("Error saving guest:", error);
+    alert("An error occurred while saving guest");
+  }
 };
 
+const deleteGuest = async () => {
+  const layoutKey = `layout${layoutNum.value}`;
+  const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
+
+  if (!seatId) {
+    alert("Seat ID not found");
+    return;
+  }
+
+  try {
+    await api.deleteGuest(seatId);
+    alert("Succesfully deleted guest");
+
+    const response = await api.getTables();
+    tablesData.value = response.data;
+
+    closeZoom();
+    emit("guests")
+  } catch (error) {
+    console.error("Error deleting guest: ", error);
+    alert("An error occurred while saving guest");
+  }
+}
+
 const getChairTooltip = (chairIndex) => {
-  const table = guestList.value[selectedTableIndex.value];
-  const name = table?.chairs?.[chairIndex] || "";
-  return name ? `Chair ${chairIndex + 1}: ${name}` : `Chair ${chairIndex + 1}: Unassigned`;
+  const layoutKey = `layout${layoutNum.value}`;
+  const tableIndex = selectedTableIndex.value;
+  const seatId = seatIdMap.value?.[layoutKey]?.[tableIndex]?.[chairIndex];
+
+  const seat = tablesData.value.find(s => s.seat_id === seatId);
+  return seat?.guest_name
+    ? `Chair ${chairIndex + 1}: ${seat.guest_name}`
+    : `Chair ${chairIndex + 1}: Unassigned`;
 };
 
 const nextLayout = () => {
@@ -173,6 +231,7 @@ const prevLayout = () => {
   layoutNum.value = layoutNum.value === 1 ? layouts.length : layoutNum.value - 1;
 };
 </script>
+
 
 <style scoped>
 .layout-container {

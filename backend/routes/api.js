@@ -37,13 +37,13 @@ router.delete('/guests/:id', (req, res) => {
 // GET -> Show all guests tables with their seats
 router.get('/tables', (req, res) => {
   const query = `
-    SELECT t.id AS table_id, t.table_number, t.floor,
+    SELECT t.id_table AS table_id, t.table_number, t.floor,
            s.id AS seat_id, s.seat_number,
            g.name AS guest_name
     FROM tables t
-    LEFT JOIN seats s ON t.id = s.id_table
+    LEFT JOIN seats s ON t.id_table = s.id_table
     LEFT JOIN guests g ON s.id = g.id_seat
-    ORDER BY t.table_number, s.seat_number;
+    ORDER BY table_id, s.seat_number, t.floor;
   `;
 
   db.query(query, (err, results) => {
