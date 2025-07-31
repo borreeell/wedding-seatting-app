@@ -45,6 +45,7 @@
           v-for="(chair, idx) in chairsForSelectedTable"
           :key="idx"
           class="chair-button"
+          :class="{ assigned: guestList[selectedTableIndex]?.chairs?.[idx] }"
           :style="{ top: chair.top + '%', left: chair.left + '%' }"
           @click="handleChairClick(idx)"
           :title="getChairTooltip(idx)"
@@ -57,7 +58,7 @@
 
       <!-- Name input below image -->
       <div v-if="selectedChairIndex !== null" class="chair-name-input">
-        <label for="chairName" class="label-bold">Guest for chair {{ selectedChairIndex + 1 }}:</label>
+        <label for="chairName"><b>Guest for chair {{ selectedChairIndex + 1 }}:</b></label>
         <input
           id="chairName"
           type="text"
@@ -298,6 +299,15 @@ const prevLayout = () => {
   transform: translate(-50%, -50%) scale(1.1);
 }
 
+/* New style for assigned chairs */
+.chair-button.assigned {
+  background-color: #e63946; /* bright red */
+}
+
+.chair-button.assigned:hover {
+  background-color: #b22222; /* darker red on hover */
+}
+
 .close-btn {
   position: absolute;
   top: 8px;
@@ -326,7 +336,7 @@ const prevLayout = () => {
 }
 
 .chair-name-input label {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.95rem;
 }
 
