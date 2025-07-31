@@ -1,7 +1,7 @@
 // Common styles consts to avoid repetition
 const commonStyle210 = { width: "210px", marginLeft: "150px" };
-const commonStyle220 = { width: "220px", marginLeft: "150px" };
-const commonStyle230 = { width: "230px", marginLeft: "150px" };
+const commonStyle220 = { width: "200px", marginLeft: "160px" };
+const commonStyle230 = { width: "200px", marginLeft: "165px" };
 const commonStyle240 = { width: "240px", marginLeft: "150px" };
 
 // Shared configuration between tables in layout 3
@@ -27,7 +27,7 @@ export const zoomImageConfig = {
         }
     },
     layout2: {
-        default: {
+        default: { /// revisar imatge taules a les que les cadiras estan en grup de 3
             src: new URL("/layout2/default_table_layout2.png", import.meta.url).href,
             style: commonStyle230
         },
@@ -76,3 +76,5 @@ export const zoomImageConfig = {
         }
     }
 }
+
+/// 
