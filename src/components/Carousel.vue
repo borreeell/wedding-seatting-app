@@ -3,7 +3,7 @@
     <h1 class="title">Layout {{ layoutNum }}</h1>
 
     <div class="carousel-container">
-      <button @click.stop="restLayout" class="nav-button" aria-label="Previous layout">
+      <button @click.stop="previousLayout" class="nav-button" aria-label="Previous layout">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
           <path d="M6.325 12.85q-.225-.15-.337-.375T5.874 12t.113-.475t.337-.375l8.15-5.175q.125-.075.263-.112T15 5.825q.4 0 .7.288t.3.712v10.35q0 .425-.3.713t-.7.287q-.125 0-.262-.038t-.263-.112z" />
         </svg>
@@ -17,14 +17,14 @@
           :key="index"
           class="seat-number"
           :style="{ top: table.y + '%', left: table.x + '%' }"
-          @click.stop="selectSeat(index)"
-          :title="guestList[index]?.name ? `${guestList[index].name} ${guestList[index].surname}` : 'Sin asignar'"
+          @click.stop="selectTable(index)"
+          :title="guestList[index]?.name ? `${guestList[index].name} ${guestList[index].surname}` : 'Unassigned'"
         >
           {{ index + 1 }}
         </div>
       </div>
 
-      <button @click.stop="sumLayout" class="nav-button" aria-label="Next layout">
+      <button @click.stop="nextLayout" class="nav-button" aria-label="Next layout">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
           <path d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712" />
         </svg>
@@ -46,9 +46,23 @@
           :key="idx"
           class="chair-button"
           :style="{ top: chair.top + '%', left: chair.left + '%' }"
+          @click="handleChairClick(idx)"
+          :title="getChairTooltip(idx)"
         >
           {{ idx + 1 }}
         </button>
+
+        <div v-if="selectedChairIndex !== null" class="chair-name-input">
+          <label for="chairName">Guest for chair {{ selectedChairIndex + 1 }}:</label>
+          <input
+            id="chairName"
+            type="text"
+            v-model="chairNameInput"
+            @keyup.enter="saveChairName"
+            placeholder="Name"
+          />
+          <button @click="saveChairName">Save</button>
+        </div>
 
         <button class="close-btn" @click="closeZoom">Close</button>
       </div>
@@ -65,48 +79,63 @@ import { zoomImageConfig } from "@/data/zoomImageConfig";
 const layouts = tableButtons;
 
 const layoutNum = ref(1);
-const selectedSeat = ref(null);
 const selectedTableIndex = ref(null);
+const selectedChairIndex = ref(null);
 const showZoom = ref(false);
+const chairNameInput = ref("");
 
 const guestList = ref([]);
+
+const chairNames = ref({}); // e.g. layout1_table0_chair2: "John"
 
 const currentLayout = computed(() => {
   return tableButtons.find(l => l.id === `layout${layoutNum.value}`) || { tables: [] };
 });
 
-watch(
-  layoutNum,
-  (newVal) => {
-    const layout = layouts.find((l) => l.id === newVal);
-    if (layout) {
-      guestList.value = layout.tables.map(() => ({ guestName: "" }));
-      selectedSeat.value = null;
-    }
-  },
-  { immediate: true }
-);
+watch(layoutNum, () => {
+  const layout = layouts.find((l) => l.id === `layout${layoutNum.value}`);
+  if (layout) {
+    guestList.value = layout.tables.map(() => ({ guestName: "" }));
+    selectedTableIndex.value = null;
+  }
+}, { immediate: true });
 
 const chairsForSelectedTable = computed(() => {
-  const layoutKey = `layout${layoutNum.value}`;
+  const key = `layout${layoutNum.value}`;
   if (selectedTableIndex.value === null) return [];
-  return zoomChairs[layoutKey]?.[selectedTableIndex.value] || [];
+  return zoomChairs[key]?.[selectedTableIndex.value] || [];
 });
 
 const zoomImageData = computed(() => {
-  const layoutKey = `layout${layoutNum.value}`;
-  const config = zoomImageConfig[layoutKey] || {};
+  const key = `layout${layoutNum.value}`;
+  const config = zoomImageConfig[key] || {};
   const index = selectedTableIndex.value;
+  return index !== null ? config[index] || config.default || { src: "", style: {} } : { src: "", style: {} };
+});
 
-  if (index === null) {
-    return { src: "", style: {} };
-  }
+const getChairKey = (chairIndex) => {
+  return `layout${layoutNum.value}_table${selectedTableIndex.value}_chair${chairIndex}`;
+};
 
-  return config[index] || config.default || { src: "", style: {} };
-})
+const handleChairClick = (chairIndex) => {
+  selectedChairIndex.value = chairIndex;
+  chairNameInput.value = chairNames.value[getChairKey(chairIndex)] || "";
+};
 
-const selectSeat = (index) => {
-  selectedSeat.value = index;
+const saveChairName = () => {
+  if (selectedChairIndex.value === null) return;
+  const key = getChairKey(selectedChairIndex.value);
+  chairNames.value[key] = chairNameInput.value.trim();
+  selectedChairIndex.value = null;
+  chairNameInput.value = "";
+};
+
+const getChairTooltip = (chairIndex) => {
+  const key = getChairKey(chairIndex);
+  return chairNames.value[key] || "Unassigned";
+};
+
+const selectTable = (index) => {
   selectedTableIndex.value = index;
   showZoom.value = true;
 };
@@ -114,16 +143,18 @@ const selectSeat = (index) => {
 const closeZoom = () => {
   showZoom.value = false;
   selectedTableIndex.value = null;
+  selectedChairIndex.value = null;
 };
 
-const sumLayout = () => {
+const nextLayout = () => {
   layoutNum.value = layoutNum.value < layouts.length ? layoutNum.value + 1 : 1;
 };
 
-const restLayout = () => {
+const previousLayout = () => {
   layoutNum.value = layoutNum.value === 1 ? layouts.length : layoutNum.value - 1;
 };
 </script>
+
 
 <style scoped>
 .layout-container {
@@ -174,7 +205,6 @@ const restLayout = () => {
   display: block;
   border-radius: 8px;
   user-select: none;
-  /* He eliminat pointer-events: none perquè el clic funcioni */
 }
 
 .seat-number {
@@ -242,7 +272,6 @@ const restLayout = () => {
   transform: translate(-50%, -50%);
   cursor: pointer;
   border: 2px solid white;
-
 }
 
 .close-btn {
@@ -256,4 +285,68 @@ const restLayout = () => {
   cursor: pointer;
   border-radius: 4px;
 }
+
+.chair-name-input {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 10;
+}
+
+.chair-name-input input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.chair-name-input {
+  position: absolute;
+  bottom: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  z-index: 10;
+}
+
+.chair-name-input label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.chair-name-input input {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  min-width: 150px;
+}
+
+.chair-name-input button {
+  padding: 6px 10px;
+  background-color: #007ac1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.chair-name-input button:hover {
+  background-color: #005f99;
+}
 </style>
+
