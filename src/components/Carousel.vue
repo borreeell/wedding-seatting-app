@@ -101,7 +101,7 @@ const chairNameInput = ref("");
 
 const tablesData = ref([]);
 const seatIdMap = ref({});
-const emit = defineEmits(["guests"])
+const emit = defineEmits(["guests"]);
 
 onMounted(async () => {
   try {
@@ -242,7 +242,7 @@ const saveGuestName = async () => {
     console.error("Error deleting guest: ", error);
     alert("An error occurred while saving guest");
   }
-}
+}*/
 
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;
@@ -253,7 +253,7 @@ const getChairTooltip = (chairIndex) => {
   return seat?.guest_name
     ? `Chair ${chairIndex + 1}: ${seat.guest_name}`
     : `Chair ${chairIndex + 1}: Unassigned`;
-};*/
+};
 
 const nextLayout = () => {
   layoutNum.value = layoutNum.value < layouts.length ? layoutNum.value + 1 : 1;
