@@ -24,7 +24,7 @@ router.post('/guests', (req, res) => {
 });
 
 // DELETE -> Delete guest
-router.delete('/guests/:id', (req, res) => {
+/*router.delete('/guests/:id', (req, res) => {
   const { id } = req.params;
   const query = `DELETE FROM guests WHERE id = ?`;
 
@@ -32,7 +32,7 @@ router.delete('/guests/:id', (req, res) => {
     if (err) return res.status(500).send(err);
     res.status(204).end();
   });
-});
+});*/
 
 // GET -> Show all guests tables with their seats
 router.get('/tables', (req, res) => {

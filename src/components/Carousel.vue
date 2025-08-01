@@ -45,7 +45,7 @@
           v-if="selectedTable && selectedTable.x !== undefined && selectedTable.y !== undefined"
           :key="idx"
           class="chair-button"
-          :class="{ assigned: false }"
+          :class="{ assigned: isChairAssigned(idx) }"
           :style="{ top: chair.top + '%', left: chair.left + '%' }"
           @click="handleChairClick(idx)"
           :title="getChairTooltip(idx)"
@@ -53,6 +53,7 @@
           {{ idx + 1 }}
         </button>
 
+        <div class="test">Chairs for selected table: {{ chairsForSelectedTable }}</div>
         <button class="close-btn" @click="closeZoom">Close</button>
       </div>
 
@@ -66,8 +67,17 @@
           @keyup.enter="saveGuestName"
           placeholder="Name"
         />
-        <button @click="saveChairName">Save</button>
-        <button @click="deleteGuest">Delete</button>
+        <button 
+          @click="saveGuestName"
+        >
+          Save
+        </button>
+        <!--<button 
+          @click="deleteGuest"
+          :disabled="!chairNameInput.trim()"
+        >
+          Delete
+        </button>-->
       </div>
     </div>
   </div>
@@ -153,11 +163,19 @@ const selectSeat = (index) => {
   showZoom.value = true;
 };
 
+const isChairAssigned = (chairIndex) => {
+  const layoutKey = `layout${layoutNum.value}`;
+  const tableIndex = selectedTableIndex.value;
+  const seatId = seatIdMap.value?.[layoutKey]?.[tableIndex]?.[chairIndex];
+
+  const seat = tablesData.value.find(s => s.seat_id === seatId);
+  return !!seat?.guest_name;
+};
+
 const closeZoom = () => {
   showZoom.value = false;
   selectedTableIndex.value = null;
   selectedChairIndex.value = null;
-  chairNameInput.value = "";
 };
 
 const handleChairClick = (chairIndex) => {
@@ -201,7 +219,7 @@ const saveGuestName = async () => {
   }
 };
 
-const deleteGuest = async () => {
+/*const deleteGuest = async () => {
   const layoutKey = `layout${layoutNum.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
 
@@ -214,7 +232,8 @@ const deleteGuest = async () => {
     await api.deleteGuest(seatId);
     alert("Succesfully deleted guest");
 
-    const response = await api.getTables();
+    const seat = tablesData.value.find(s => s.seat_id === seatId);
+    if (seat) seat.guest_name = null;
     tablesData.value = response.data;
 
     closeZoom();
@@ -234,7 +253,7 @@ const getChairTooltip = (chairIndex) => {
   return seat?.guest_name
     ? `Chair ${chairIndex + 1}: ${seat.guest_name}`
     : `Chair ${chairIndex + 1}: Unassigned`;
-};
+};*/
 
 const nextLayout = () => {
   layoutNum.value = layoutNum.value < layouts.length ? layoutNum.value + 1 : 1;
@@ -371,13 +390,12 @@ const prevLayout = () => {
   transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* New style for assigned chairs */
 .chair-button.assigned {
-  background-color: #e63946; /* bright red */
+  background-color: #e63946; 
 }
 
 .chair-button.assigned:hover {
-  background-color: #b22222; /* darker red on hover */
+  background-color: #b22222; 
 }
 
 .close-btn {
@@ -434,5 +452,12 @@ const prevLayout = () => {
 
 .chair-name-input button:hover {
   background-color: #005f99;
+}
+
+.test {
+  background: green;
+  display: none; /* Display ONLY if there are errors with chair buttons */
+  font-size: large;
+  color: #b22222;
 }
 </style>
