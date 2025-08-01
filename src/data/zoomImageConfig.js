@@ -75,4 +75,5 @@ export const zoomImageConfig = {
             style: commonStyle230
         }
     }
-} 
+}
+ 
