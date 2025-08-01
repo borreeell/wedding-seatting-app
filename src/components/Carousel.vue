@@ -242,11 +242,8 @@ const saveGuestName = async () => {
     console.error("Error deleting guest: ", error);
     alert("An error occurred while saving guest");
   }
-<<<<<<< Updated upstream
-}*/
-=======
+
 } */
->>>>>>> Stashed changes
 
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;
@@ -375,7 +372,7 @@ const prevLayout = () => {
 
 .chair-button {
   position: absolute;
-  background-color: #4ab6f5;
+  background-color: #064163;
   color: white;
   border: none;
   border-radius: 50%;
