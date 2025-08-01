@@ -1,8 +1,11 @@
 // Common styles consts to avoid repetition
+const commonStyle205 = { width: "200px", marginLeft: "150px" };
 const commonStyle210 = { width: "210px", marginLeft: "150px" };
 const commonStyle220 = { width: "200px", marginLeft: "160px" };
 const commonStyle230 = { width: "200px", marginLeft: "165px" };
 const commonStyle240 = { width: "240px", marginLeft: "150px" };
+const commonStyle245 = { width: "245px", marginLeft: "150px" };
+const commonStyle250 = { width: "250px", marginLeft: "130px" };
 
 // Shared configuration between tables in layout 3
 const sharedTableVariantLayout3 = {
@@ -38,18 +41,18 @@ export const zoomImageConfig = {
     layout3: {
         default: {
             src: new URL("/layout3/default_table_layout3.png", import.meta.url).href,
-            style: commonStyle210
+            style: commonStyle205
         },
         2: sharedTableVariantLayout3,
         4: sharedTableVariantLayout3,
         6: {
             src: new URL("/layout3/table_variant2_layout3.png", import.meta.url).href,
-            style: commonStyle220
+            style: commonStyle230
         },
         7: {
             src: new URL("/layout3/table_variant3_layout3.png", import.meta.url).href,
-            style: commonStyle240
-        }
+            style: commonStyle245
+        },
     },
     layout4: {
         default: {
@@ -68,7 +71,7 @@ export const zoomImageConfig = {
         },
         11: {
             src: new URL("/layout4/table_variant4_layout4.png", import.meta.url).href,
-            style: commonStyle240
+            style: commonStyle230
         },
         12: {
             src: new URL("/layout4/table_variant5_layout4.png", import.meta.url).href,
