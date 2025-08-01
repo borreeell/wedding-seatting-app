@@ -242,7 +242,11 @@ const saveGuestName = async () => {
     console.error("Error deleting guest: ", error);
     alert("An error occurred while saving guest");
   }
+<<<<<<< Updated upstream
 }*/
+=======
+} */
+>>>>>>> Stashed changes
 
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;
@@ -412,9 +416,9 @@ const prevLayout = () => {
 
 .chair-name-input {
   position: absolute;
-  bottom: 120px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  right: 150px;
+  transform: translateY(-50%);
   background-color: #be9772;
   padding: 12px 16px;
   border-radius: 10px;
@@ -423,11 +427,19 @@ const prevLayout = () => {
   gap: 10px;
   align-items: center;
   z-index: 1010;
+  font-style: bold ;
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .chair-name-input label {
   font-weight: 600;
   font-size: 0.95rem;
+  
+
+}
+
+.chair-name-inpuut::placeholder {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .chair-name-input input {
