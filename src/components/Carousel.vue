@@ -13,7 +13,7 @@
         <img :src="`/layout${layoutNum}.jpg`" :alt="`Layout ${layoutNum}`" />
 
         <div
-          v-for="(table, index) in currentLayout.tables"
+          v-for="(table, index) in currentLayout?.tables"
           :key="index"
           class="seat-number"
           :style="{ top: table.y + '%', left: table.x + '%' }"
@@ -42,9 +42,10 @@
 
         <button
           v-for="(chair, idx) in chairsForSelectedTable"
+          v-if="selectedTable && selectedTable.x !== undefined && selectedTable.y !== undefined"
           :key="idx"
           class="chair-button"
-          :class="{ assigned: guestList[selectedTableIndex]?.chairs?.[idx] }"
+          :class="{ assigned: false }"
           :style="{ top: chair.top + '%', left: chair.left + '%' }"
           @click="handleChairClick(idx)"
           :title="getChairTooltip(idx)"
@@ -116,7 +117,19 @@ onMounted(async () => {
 });
 
 const currentLayout = computed(() => {
-  return layouts.find(l => l.id === `layout${layoutNum.value}`) || { tables: [] };
+  return tableButtons.find(l => l.id === `layout${layoutNum.value}`) || { tables: [] };
+});
+
+watch(
+  layoutNum,
+  (newVal) => {
+    const layout = layouts.find((l) => l.id === newVal)
+  }
+)
+
+const selectedTable = computed(() => {
+  if (selectedTableIndex.value === null) return null;
+  return currentLayout.value.tables?.[selectedTableIndex.value] || null;
 });
 
 const chairsForSelectedTable = computed(() => {
