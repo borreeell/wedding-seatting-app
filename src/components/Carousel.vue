@@ -73,10 +73,12 @@
           Save
         </button>
         <button 
+        <button 
           @click="deleteGuest"
           :disabled="!chairNameInput.trim()"
         >
           Delete
+        </button>
         </button>
       </div>
     </div>
@@ -207,7 +209,6 @@ const saveGuestName = async () => {
   try {
     const response = await api.addGuest({
       name: chairNameInput.value.trim(),
-      name: chairNameInput.value.trim(),
       id_seat: seatId,
     });
 
@@ -226,6 +227,7 @@ const saveGuestName = async () => {
 }
 
 const deleteGuest = async () => {
+const deleteGuest = async () => {
   const layoutKey = `layout${layoutNum.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
 
@@ -238,23 +240,19 @@ const deleteGuest = async () => {
     await api.deleteGuest(seatId);
 
     // Actualiza localmente
-    // Actualiza localmente
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) seat.guest_name = null;
 
     alert("Successfully deleted guest");
 
-    alert("Successfully deleted guest");
-
     closeZoom();
-    emit("guests");
     emit("guests");
   } catch (error) {
     console.error("Error deleting guest: ", error);
     alert("An error occurred while deleting guest");
-    alert("An error occurred while deleting guest");
   }
 }
+
 
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;
