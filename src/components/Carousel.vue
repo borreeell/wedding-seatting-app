@@ -72,12 +72,12 @@
         >
           Save
         </button>
-        <!--<button 
+        <button 
           @click="deleteGuest"
           :disabled="!chairNameInput.trim()"
         >
           Delete
-        </button>-->
+        </button>
       </div>
     </div>
   </div>
@@ -192,7 +192,7 @@ const saveGuestName = async () => {
   if (
     selectedTableIndex.value === null ||
     selectedChairIndex.value === null ||
-    !chairNameInput.value
+    !chairNameInput.value.trim()
   ) return;
 
   const layoutKey = `layout${layoutNum.value}`;
@@ -205,13 +205,17 @@ const saveGuestName = async () => {
 
   try {
     const response = await api.addGuest({
-      name: chairNameInput.value,
+      name: chairNameInput.value.trim(),
       id_seat: seatId,
     });
 
-    emit("guests")
+    // Actualiza localmente tablesData
+    const seat = tablesData.value.find(s => s.seat_id === seatId);
+    if (seat) {
+      seat.guest_name = chairNameInput.value.trim();
+    }
 
-    console.log("Guest saved", response.data);
+    emit("guests");
     closeZoom();
   } catch (error) {
     console.error("Error saving guest:", error);
@@ -219,7 +223,7 @@ const saveGuestName = async () => {
   }
 };
 
-/*const deleteGuest = async () => {
+const deleteGuest = async () => {
   const layoutKey = `layout${layoutNum.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
 
@@ -230,19 +234,25 @@ const saveGuestName = async () => {
 
   try {
     await api.deleteGuest(seatId);
-    alert("Succesfully deleted guest");
 
+    // Actualiza localmente
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) seat.guest_name = null;
-    tablesData.value = response.data;
+
+    alert("Successfully deleted guest");
 
     closeZoom();
-    emit("guests")
+    emit("guests");
   } catch (error) {
     console.error("Error deleting guest: ", error);
-    alert("An error occurred while saving guest");
+    alert("An error occurred while deleting guest");
   }
+<<<<<<< Updated upstream
 } */
+=======
+}
+
+>>>>>>> Stashed changes
 
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;

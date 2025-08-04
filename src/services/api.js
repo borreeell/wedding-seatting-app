@@ -7,6 +7,6 @@ const api = axios.create({
 export default {
     getAllGuests: () => api.get('/guests'),
     addGuest: (guest) => api.post('/guests', guest),
-    //deleteGuest: (id) => api.delete(`/guests/${id}`),
+    deleteGuest: (idSeat) => api.delete(`/guests/${idSeat}`),
     getTables: () => api.get('/tables')
 };

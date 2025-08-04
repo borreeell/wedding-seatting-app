@@ -62,6 +62,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+import CustomSelect from "./CustomSelect.vue";
 import api from "@/services/api";
 
 const open = ref(false);
