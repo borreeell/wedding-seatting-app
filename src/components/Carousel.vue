@@ -192,6 +192,7 @@ const saveGuestName = async () => {
   if (
     selectedTableIndex.value === null ||
     selectedChairIndex.value === null ||
+    !chairNameInput.value.trim(),
     !chairNameInput.value.trim()
   ) return;
 
@@ -206,10 +207,11 @@ const saveGuestName = async () => {
   try {
     const response = await api.addGuest({
       name: chairNameInput.value.trim(),
+      name: chairNameInput.value.trim(),
       id_seat: seatId,
     });
 
-    // Actualiza localmente tablesData
+    emit("guests");
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) {
       seat.guest_name = chairNameInput.value.trim();
@@ -221,7 +223,7 @@ const saveGuestName = async () => {
     console.error("Error saving guest:", error);
     alert("An error occurred while saving guest");
   }
-};
+}
 
 const deleteGuest = async () => {
   const layoutKey = `layout${layoutNum.value}`;
@@ -236,23 +238,23 @@ const deleteGuest = async () => {
     await api.deleteGuest(seatId);
 
     // Actualiza localmente
+    // Actualiza localmente
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) seat.guest_name = null;
 
     alert("Successfully deleted guest");
 
+    alert("Successfully deleted guest");
+
     closeZoom();
+    emit("guests");
     emit("guests");
   } catch (error) {
     console.error("Error deleting guest: ", error);
     alert("An error occurred while deleting guest");
+    alert("An error occurred while deleting guest");
   }
-<<<<<<< Updated upstream
-} */
-=======
 }
-
->>>>>>> Stashed changes
 
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;
