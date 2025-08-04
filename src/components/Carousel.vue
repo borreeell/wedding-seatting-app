@@ -242,10 +242,6 @@ const saveGuestName = async () => {
     console.error("Error deleting guest: ", error);
     alert("An error occurred while saving guest");
   }
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 } */
 
 const getChairTooltip = (chairIndex) => {
