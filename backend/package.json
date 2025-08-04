@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "db.js",
   "scripts": {
+    "serve": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "node server.js",
+    "frontend": "cd ../frontend && npm run dev",
+    "install:all": "concurrently \"npm install\" \"cd ../frontend && npm install\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
@@ -15,5 +19,8 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "mysql2": "^3.14.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }
