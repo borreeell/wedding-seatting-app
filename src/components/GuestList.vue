@@ -283,9 +283,11 @@ const generatePDF = () => {
     y += 10;
   }
 
-  doc.save("guestlist.pdf");
+  doc.save(`guestList - ${weddingName.value}.pdf`);
   closeExportModal();
 };
+
+defineExpose({ fetchGuests })
 </script>
 
 <style scoped>
