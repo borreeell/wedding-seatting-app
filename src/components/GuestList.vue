@@ -1,11 +1,6 @@
 <template>
   <button class="list close-btn" v-if="open" @click="toggleOpen(false)">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="50"
-      height="50"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
       <path
         fill="none"
         stroke="var(--secondary)"
@@ -16,14 +11,10 @@
       />
     </svg>
   </button>
+
   <aside class="guestList" v-else>
     <button class="list open-btn" @click="open = true">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="40"
-        height="40"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
         <path
           fill="none"
           stroke="var(--primary)"
@@ -34,20 +25,18 @@
         />
       </svg>
     </button>
+
     <h2>Guest List</h2>
     <hr style="margin: 12px 0" />
 
     <select id="floor-select" v-model="selectedFloor" class="floor-select">
       <option value="all">All floors</option>
-      <option
-        v-for="floor in sortedFloors"
-        :key="floor"
-        :value="floor"
-      >
-      Floor {{ floor }}
-    </option>
+      <option v-for="floor in sortedFloors" :key="floor" :value="floor">
+        Floor {{ floor }}
+      </option>
     </select>
-    <p v-if="guests.length === 0">No guests foud</p>
+
+    <p v-if="guests.length === 0">No guests found</p>
 
     <div v-for="(guests, floor) in filteredGuestsByFloor" :key="floor">
       <h3>Floor {{ floor }}:</h3>
@@ -57,11 +46,41 @@
         </li>
       </ul>
     </div>
+
+    <!-- Export PDF button -->
+    <button @click="showExportModal = true" class="export-btn">Export PDF</button>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" v-if="showExportModal">
+      <div class="modal">
+        <h3>Export Guest List</h3>
+
+        <label>
+          Wedding Name:
+          <input type="text" v-model="weddingName" required />
+        </label>
+
+        <label>
+          Date:
+          <input type="date" v-model="weddingDate" required />
+        </label>
+
+        <label>
+          Contact Phone:
+          <input type="tel" v-model="contactPhone" required />
+        </label>
+
+        <button @click="generatePDF" :disabled="!canExport">Generate PDF</button>
+        <button @click="showExportModal = false">Cancel</button>
+      </div>
+    </div>
   </aside>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+import jsPDF from "jspdf";
+
 import api from "@/services/api";
 
 const open = ref(false);
@@ -76,10 +95,8 @@ const toggleOpen = (value) => {
 const fetchGuests = async () => {
   try {
     const { data } = await api.getTables();
-
-    console.log("Fetching guests...")
     const parsed = data
-      .filter((row) => row.guest_name) // Only seats with guests
+      .filter((row) => row.guest_name)
       .map((row, index) => ({
         id: index + 1,
         name: row.guest_name,
@@ -91,14 +108,10 @@ const fetchGuests = async () => {
     guests.value = parsed;
 
     const savedOpen = localStorage.getItem("guestListOpen");
-    if (savedOpen) {
-      open.value = savedOpen === "true";
-    }
+    if (savedOpen) open.value = savedOpen === "true";
 
     const savedFloor = localStorage.getItem("selectedFloor");
-    if (savedFloor) {
-      selectedFloor.value = savedFloor;
-    }
+    if (savedFloor) selectedFloor.value = savedFloor;
   } catch (err) {
     console.log(`Error fetching guests: ${err}`);
   }
@@ -113,7 +126,7 @@ watch(selectedFloor, (val) => {
 const sortedFloors = computed(() => {
   const floors = [...new Set(guests.value.map((g) => g.floor))];
   return floors.sort((a, b) => a - b);
-})
+});
 
 const filteredGuestsByFloor = computed(() => {
   const filtered = selectedFloor.value === "all"
@@ -127,13 +140,58 @@ const filteredGuestsByFloor = computed(() => {
   });
 
   Object.keys(grouped).forEach((floor) => {
-    grouped[floor].sort((a, b) => a.table - b.table || a.chair - b.chair); 
+    grouped[floor].sort((a, b) => a.table - b.table || a.chair - b.chair);
   });
 
   return grouped;
-})
+});
 
-defineExpose({ fetchGuests })
+// PDF Export Modal
+const showExportModal = ref(false);
+const weddingName = ref("");
+const weddingDate = ref("");
+const contactPhone = ref("");
+
+const canExport = computed(() =>
+  weddingName.value && weddingDate.value && contactPhone.value
+);
+
+const generatePDF = () => {
+  const doc = new jsPDF();
+  let y = 10;
+
+  doc.setFontSize(16);
+  doc.text("Wedding Guest List", 10, y);
+  y += 10;
+
+  doc.setFontSize(12);
+  doc.text(`Name: ${weddingName.value}`, 10, y); y += 8;
+  doc.text(`Date: ${weddingDate.value}`, 10, y); y += 8;
+  doc.text(`Contact Phone: ${contactPhone.value}`, 10, y); y += 12;
+
+  for (const floor of Object.keys(filteredGuestsByFloor.value)) {
+    doc.setFontSize(14);
+    doc.text(`Floor ${floor}:`, 10, y);
+    y += 8;
+
+    filteredGuestsByFloor.value[floor].forEach(g => {
+      doc.setFontSize(12);
+      doc.text(`- ${g.name} (Table ${g.table}, Chair ${g.chair})`, 12, y);
+      y += 6;
+      if (y > 270) {
+        doc.addPage();
+        y = 10;
+      }
+    });
+
+    y += 6;
+  }
+
+  doc.save("guestlist.pdf");
+  showExportModal.value = false;
+};
+
+defineExpose({ fetchGuests });
 </script>
 
 <style scoped>
@@ -219,5 +277,68 @@ defineExpose({ fetchGuests })
 .floor-select:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(82, 73, 57, 0.2);
+}
+
+.export-btn {
+  margin-top: 2rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: #524939;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #524939;
+}
+
+.modal label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.modal input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.modal button {
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #524939;
+  color: white;
+  cursor: pointer;
 }
 </style>
