@@ -73,12 +73,10 @@
           Save
         </button>
         <button 
-        <button 
           @click="deleteGuest"
           :disabled="!chairNameInput.trim()"
         >
           Delete
-        </button>
         </button>
       </div>
     </div>
@@ -226,7 +224,6 @@ const saveGuestName = async () => {
   }
 }
 
-const deleteGuest = async () => {
 const deleteGuest = async () => {
   const layoutKey = `layout${layoutNum.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
