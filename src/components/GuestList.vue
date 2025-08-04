@@ -31,9 +31,7 @@
 
     <select id="floor-select" v-model="selectedFloor" class="floor-select">
       <option value="all">All floors</option>
-      <option v-for="floor in sortedFloors" :key="floor" :value="floor">
-        Floor {{ floor }}
-      </option>
+      <option v-for="floor in sortedFloors" :key="floor" :value="floor">Floor {{ floor }}</option>
     </select>
 
     <p v-if="guests.length === 0">No guests found</p>
@@ -47,31 +45,45 @@
       </ul>
     </div>
 
-    <!-- Export PDF button -->
-    <button @click="showExportModal = true" class="export-btn">Export PDF</button>
+    <button class="export-btn" @click="openExportModal">Export Guest List as PDF</button>
 
-    <!-- Modal -->
-    <div class="modal-backdrop" v-if="showExportModal">
-      <div class="modal">
-        <h3>Export Guest List</h3>
+    <!-- Modal per dades de la boda -->
+    <div v-if="showModal" class="modal-overlay" @click.self="closeExportModal">
+      <div class="modal-content">
+        <h3>Enter Wedding Details</h3>
+        <form @submit.prevent="generatePDF" novalidate>
+          <label for="weddingName">Name of the Bride/Groom</label>
+          <input
+            type="text"
+            id="weddingName"
+            v-model="weddingName"
+            required
+            :class="{ invalid: showErrors && !weddingName.trim() }"
+          />
 
-        <label>
-          Wedding Name:
-          <input type="text" v-model="weddingName" required />
-        </label>
+          <label for="weddingDate">Date of the Event</label>
+          <input
+            type="date"
+            id="weddingDate"
+            v-model="weddingDate"
+            required
+            :class="{ invalid: showErrors && !weddingDate }"
+          />
 
-        <label>
-          Date:
-          <input type="date" v-model="weddingDate" required />
-        </label>
+          <label for="contactPhone">Contact Phone</label>
+          <input
+            type="tel"
+            id="contactPhone"
+            v-model="contactPhone"
+            required
+            :class="{ invalid: showErrors && !contactPhone.trim() }"
+          />
 
-        <label>
-          Contact Phone:
-          <input type="tel" v-model="contactPhone" required />
-        </label>
-
-        <button @click="generatePDF" :disabled="!canExport">Generate PDF</button>
-        <button @click="showExportModal = false">Cancel</button>
+          <div class="modal-buttons">
+            <button type="button" @click="closeExportModal">Cancel</button>
+            <button type="submit" :disabled="!formIsValid">Export PDF</button>
+          </div>
+        </form>
       </div>
     </div>
   </aside>
@@ -80,12 +92,17 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import jsPDF from "jspdf";
-
 import api from "@/services/api";
 
 const open = ref(false);
 const guests = ref([]);
 const selectedFloor = ref("all");
+
+const weddingName = ref("");
+const weddingDate = ref("");
+const contactPhone = ref("");
+const showModal = ref(false);
+const showErrors = ref(false);
 
 const toggleOpen = (value) => {
   open.value = value;
@@ -96,7 +113,7 @@ const fetchGuests = async () => {
   try {
     const { data } = await api.getTables();
     const parsed = data
-      .filter((row) => row.guest_name)
+      .filter((row) => row.guest_name) // Only seats with guests
       .map((row, index) => ({
         id: index + 1,
         name: row.guest_name,
@@ -113,7 +130,7 @@ const fetchGuests = async () => {
     const savedFloor = localStorage.getItem("selectedFloor");
     if (savedFloor) selectedFloor.value = savedFloor;
   } catch (err) {
-    console.log(`Error fetching guests: ${err}`);
+    console.error("Error fetching guests:", err);
   }
 };
 
@@ -146,52 +163,129 @@ const filteredGuestsByFloor = computed(() => {
   return grouped;
 });
 
-// PDF Export Modal
-const showExportModal = ref(false);
-const weddingName = ref("");
-const weddingDate = ref("");
-const contactPhone = ref("");
+// Obrir modal exportació
+const openExportModal = () => {
+  showErrors.value = false;
+  weddingName.value = "";
+  weddingDate.value = "";
+  contactPhone.value = "";
+  showModal.value = true;
+};
 
-const canExport = computed(() =>
-  weddingName.value && weddingDate.value && contactPhone.value
-);
+// Tancar modal exportació
+const closeExportModal = () => {
+  showModal.value = false;
+  showErrors.value = false;
+};
 
+// Validació formulari
+const formIsValid = computed(() => {
+  return (
+    weddingName.value.trim().length > 0 &&
+    weddingDate.value &&
+    contactPhone.value.trim().length > 0
+  );
+});
+
+// Generar PDF
 const generatePDF = () => {
-  const doc = new jsPDF();
-  let y = 10;
+  showErrors.value = true;
+  if (!formIsValid.value) return;
 
-  doc.setFontSize(16);
-  doc.text("Wedding Guest List", 10, y);
-  y += 10;
+  const doc = new jsPDF();
+  let y = 20;
+
+  // Format data dd/mm/aa
+  const dateObj = new Date(weddingDate.value);
+  const formatDate = `${String(dateObj.getDate()).padStart(2, "0")}/${String(
+    dateObj.getMonth() + 1
+  ).padStart(2, "0")}/${String(dateObj.getFullYear()).slice(-2)}`;
+
+  // Títol principal centrat i negreta
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.text("Wedding Guest List", doc.internal.pageSize.getWidth() / 2, y, {
+    align: "center",
+  });
+  y += 15;
 
   doc.setFontSize(12);
-  doc.text(`Name: ${weddingName.value}`, 10, y); y += 8;
-  doc.text(`Date: ${weddingDate.value}`, 10, y); y += 8;
-  doc.text(`Contact Phone: ${contactPhone.value}`, 10, y); y += 12;
+  doc.setFont("helvetica", "bold");
+  // Etiquetes columna x = 10
+  const labelX = 10;
+  // Valors columna x = 60
+  const valueX = 60;
 
-  for (const floor of Object.keys(filteredGuestsByFloor.value)) {
+  // Info boda
+  doc.text("Name:", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(weddingName.value, valueX, y);
+  y += 8;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Date:", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(formatDate, valueX, y);
+  y += 8;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Contact Phone:", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(contactPhone.value, valueX, y);
+  y += 12;
+
+  // Títol Guest List centrat i més gran
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("Guest List", doc.internal.pageSize.getWidth() / 2, y, {
+    align: "center",
+  });
+  y += 15;
+
+  // Capçalera taula convidats: Nom, Taula, Cadira (x fixes)
+  const guestNameX = 15;
+  const guestTableX = 120;
+  const guestChairX = 160;
+
+  for (const layout of Object.keys(filteredGuestsByFloor.value).sort()) {
     doc.setFontSize(14);
-    doc.text(`Floor ${floor}:`, 10, y);
-    y += 8;
+    doc.setFont("helvetica", "bold");
+    doc.text(`Layout ${layout}:`, labelX, y);
+    y += 10;
 
-    filteredGuestsByFloor.value[floor].forEach(g => {
-      doc.setFontSize(12);
-      doc.text(`- ${g.name} (Table ${g.table}, Chair ${g.chair})`, 12, y);
-      y += 6;
+    // Capçalera de la taula de convidats
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Guest Name", guestNameX, y);
+    doc.text("Table", guestTableX, y);
+    doc.text("Chair", guestChairX, y);
+    y += 6;
+
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.line(10, y, 200, y); // línia sota capçalera
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+
+    filteredGuestsByFloor.value[layout].forEach((g) => {
+      doc.text(g.name, guestNameX, y);
+      doc.text(String(g.table), guestTableX, y);
+      doc.text(String(g.chair), guestChairX, y);
+      y += 7;
+
       if (y > 270) {
         doc.addPage();
-        y = 10;
+        y = 20;
       }
     });
 
-    y += 6;
+    y += 10;
   }
 
   doc.save("guestlist.pdf");
-  showExportModal.value = false;
+  closeExportModal();
 };
-
-defineExpose({ fetchGuests });
 </script>
 
 <style scoped>
@@ -265,80 +359,105 @@ defineExpose({ fetchGuests });
   padding: 0.5rem 0.75rem;
   margin: 0.5rem 0 1.5rem 0;
   font-size: 1rem;
-  background: #fdfcfb;
+  border-radius: 6px;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  outline-color: #c0a16b;
+  background-color: #d6cdbd;
   color: #524939;
-  outline: none;
-  appearance: none;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.floor-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(82, 73, 57, 0.2);
 }
 
 .export-btn {
   margin-top: 2rem;
-  width: 100%;
-  padding: 0.75rem;
-  background: #524939;
-  color: white;
+  padding: 0.7rem 1.2rem;
   font-size: 1rem;
+  cursor: pointer;
+  background-color: #80693e;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
+  color: white;
+  transition: background-color 0.3s ease;
 }
 
-.modal-backdrop {
+.export-btn:hover {
+  background-color: #4f3e18;
+}
+
+/* Modal styles */
+.modal-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 999;
+  align-items: center;
+  z-index: 130;
 }
 
-.modal {
-  background: #fff;
+.modal-content {
+  background-color: #fff;
   padding: 2rem;
-  border-radius: 12px;
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  border-radius: 10px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
 }
 
-.modal h3 {
-  margin: 0;
-  font-size: 1.3rem;
+.modal-content h3 {
+  margin-bottom: 1rem;
+  color: #524939;
+  text-align: center;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #4a3f2a;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline-color: #c0a16b;
+  background-color: #f4f1e9;
   color: #524939;
 }
 
-.modal label {
+.modal-content input.invalid {
+  border-color: red;
+}
+
+.modal-buttons {
+  margin-top: 1.8rem;
   display: flex;
-  flex-direction: column;
-  font-size: 0.9rem;
-  color: #333;
+  justify-content: space-between;
 }
 
-.modal input {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.modal button {
-  padding: 0.6rem;
-  font-size: 1rem;
+.modal-buttons button {
+  padding: 0.6rem 1rem;
   border: none;
   border-radius: 6px;
-  background-color: #524939;
-  color: white;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  background-color: #80693e;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.modal-buttons button:hover {
+  background-color: #4f3e18;
+}
+
+.modal-buttons button:disabled {
+  background-color: #c2bca6;
+  cursor: not-allowed;
 }
 </style>
