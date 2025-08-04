@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "node server.js",
-    "frontend": "cd ../frontend && npm run dev",
+    "frontend": "cd .. && npm run dev",
     "install:all": "concurrently \"npm install\" \"cd ../frontend && npm install\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
