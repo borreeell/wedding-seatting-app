@@ -26,7 +26,7 @@ npm run install:all
 
 ### Run the project
 ```sh
-npm run dev
+npm run serve
 ```
 
 ## License
