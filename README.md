@@ -11,7 +11,7 @@ cd .\wedding-seatting-app\backend\
 ### Environment Variables
 Create a `.env` file in the backend folder:
 ```
-DB_HOST=yout_db_host
+DB_HOST=your_db_host
 DB_USER=your_db_user
 DB_PASS=
 DB_NAME=your_db_name
