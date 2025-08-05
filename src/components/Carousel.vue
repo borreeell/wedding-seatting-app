@@ -78,6 +78,33 @@
         >
           Delete
         </button>
+
+        <!-- New dietary and allergy checkboxes -->
+        <div class="guest-options" style="margin-top: 10px;">
+          <p><b>Dietary preferences:</b></p>
+          <label><input type="checkbox" v-model="isChild" /> Child</label><br />
+          <label><input type="checkbox" v-model="isVegetarian" /> Vegetarian</label><br />
+          <label><input type="checkbox" v-model="isVegan" /> Vegan</label><br />
+          <label><input type="checkbox" v-model="isGlutenIntolerant" /> Gluten Intolerant</label><br />
+          <label>
+            <input type="checkbox" v-model="hasOtherDiet" /> Other
+          </label>
+          <div v-if="hasOtherDiet" style="margin-left: 20px; margin-top: 4px;">
+            <input type="text" v-model="otherDietText" placeholder="Please specify" />
+          </div>
+
+          <p style="margin-top: 10px;"><b>Allergies:</b></p>
+          <label>
+            <input type="checkbox" v-model="hasAllergies" />
+            Has allergies
+          </label>
+          <div v-if="hasAllergies" style="margin-left: 20px; margin-top: 4px;">
+            <input type="text" v-model="allergyText" placeholder="Please specify allergies" />
+          </div>
+
+          <p style="margin-top: 10px;"><b>Observations:</b></p>
+          <textarea v-model="observations" placeholder="Additional notes..." rows="3" style="width: 100%;"></textarea>
+        </div>
       </div>
     </div>
   </div>
@@ -98,6 +125,17 @@ const selectedTableIndex = ref(null);
 const selectedChairIndex = ref(null);
 const showZoom = ref(false);
 const chairNameInput = ref("");
+
+// New reactive states for checkboxes and inputs
+const isChild = ref(false);
+const isVegetarian = ref(false);
+const isVegan = ref(false);
+const isGlutenIntolerant = ref(false);
+const hasOtherDiet = ref(false);
+const otherDietText = ref("");
+const hasAllergies = ref(false);
+const allergyText = ref("");
+const observations = ref("");
 
 const tablesData = ref([]);
 const seatIdMap = ref({});
@@ -161,6 +199,9 @@ const selectSeat = (index) => {
   selectedTableIndex.value = index;
   selectedChairIndex.value = null;
   showZoom.value = true;
+
+  // Reset new fields when opening a new seat
+  resetExtraFields();
 };
 
 const isChairAssigned = (chairIndex) => {
@@ -186,13 +227,27 @@ const handleChairClick = (chairIndex) => {
   const seat = tablesData.value.find(s => s.seat_id === seatId);
 
   chairNameInput.value = seat?.guest_name || "";
+
+  // TODO: if your API stores these extra fields, here you should also load them and set the reactive vars
+  resetExtraFields();
+};
+
+const resetExtraFields = () => {
+  isChild.value = false;
+  isVegetarian.value = false;
+  isVegan.value = false;
+  isGlutenIntolerant.value = false;
+  hasOtherDiet.value = false;
+  otherDietText.value = "";
+  hasAllergies.value = false;
+  allergyText.value = "";
+  observations.value = "";
 };
 
 const saveGuestName = async () => {
   if (
     selectedTableIndex.value === null ||
     selectedChairIndex.value === null ||
-    !chairNameInput.value.trim(),
     !chairNameInput.value.trim()
   ) return;
 
@@ -204,16 +259,30 @@ const saveGuestName = async () => {
     return;
   }
 
+  // Prepare data object to send - add your new fields here if your backend supports them
+  const guestData = {
+    name: chairNameInput.value.trim(),
+    id_seat: seatId,
+    dietary: {
+      child: isChild.value,
+      vegetarian: isVegetarian.value,
+      vegan: isVegan.value,
+      glutenIntolerant: isGlutenIntolerant.value,
+      otherDiet: hasOtherDiet.value ? otherDietText.value.trim() : null,
+    },
+    allergies: hasAllergies.value ? allergyText.value.trim() : null,
+    observations: observations.value.trim(),
+  };
+
   try {
-    const response = await api.addGuest({
-      name: chairNameInput.value.trim(),
-      id_seat: seatId,
-    });
+    // Assuming your API supports this structure, adapt if needed
+    const response = await api.addGuest(guestData);
 
     emit("guests");
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) {
       seat.guest_name = chairNameInput.value.trim();
+      // Also update your seat with these new fields if you store them locally
     }
 
     emit("guests");
@@ -270,7 +339,6 @@ const prevLayout = () => {
   layoutNum.value = layoutNum.value === 1 ? layouts.length : layoutNum.value - 1;
 };
 </script>
-
 
 <style scoped>
 .layout-container {
@@ -398,11 +466,11 @@ const prevLayout = () => {
 }
 
 .chair-button.assigned {
-  background-color: #e63946; 
+  background-color: #e63946;
 }
 
 .chair-button.assigned:hover {
-  background-color: #b22222; 
+  background-color: #b22222;
 }
 
 .close-btn {
@@ -417,62 +485,102 @@ const prevLayout = () => {
   border-radius: 4px;
 }
 
+/* ✅ Contenidor de la targeta d’edició */
 .chair-name-input {
   position: absolute;
   top: 50%;
-  right: 150px;
+  right: 250px;
   transform: translateY(-50%);
   background-color: #be9772;
-  padding: 12px 16px;
+  padding: 16px;
   border-radius: 10px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  display: flex;
-  gap: 10px;
-  align-items: center;
   z-index: 1010;
-  font-style: bold ;
-  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-}
-
-.chair-name-input label {
-  font-weight: 600;
-  font-size: 0.95rem;
-  
-
-}
-
-.chair-name-inpuut::placeholder {
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.chair-name-input input {
+/* ✅ Input de text */
+.chair-name-input input[type="text"] {
   padding: 6px 8px;
   border: 2px solid #ccc;
   border-radius: 6px;
   font-size: 0.9rem;
-  min-width: 150px;
-  text-align: center;  
+  width: 100%;
+  text-align: center;
 }
 
-.chair-name-input button {
+/* ✅ Botons "Save" i "Delete" en la mateixa línia */
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.button-row button {
+  flex: 1;
   padding: 6px 10px;
-  background-color: #007ac1;
-  color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.2s ease;
+  color: white;
 }
 
-.chair-name-input button:hover {
+.button-row .save-btn {
+  background-color: #007ac1;
+}
+
+.button-row .save-btn:hover {
   background-color: #005f99;
 }
 
-.test {
-  background: green;
-  display: none; /* Display ONLY if there are errors with chair buttons */
-  font-size: large;
-  color: #b22222;
+.button-row .delete-btn {
+  background-color: #e63946;
+}
+
+.button-row .delete-btn:hover {
+  background-color: #b22222;
+}
+
+/* ✅ Checkbox alineats correctament */
+.chair-name-input .checkbox-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.chair-name-input .checkbox-item label {
+  flex: 1;
+  text-align: left;
+}
+
+.chair-name-input .checkbox-item input[type="checkbox"] {
+  margin-left: 12px;
+  transform: scale(1.2);
+  
+  text-align: left;
+
+}
+
+/* ✅ Responsive */
+@media (max-width: 600px) {
+  .chair-name-input {
+    position: fixed;
+    top: auto;
+    bottom: 30px;
+    right: 5vw;
+    transform: none;
+    width: 90vw;
+    max-height: 60vh;
+  }
 }
 </style>
