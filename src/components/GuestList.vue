@@ -34,6 +34,8 @@
       <option v-for="floor in sortedFloors" :key="floor" :value="floor">Floor {{ floor }}</option>
     </select>
 
+    <h3 class="guest-counter">Total guests added: {{ totalGuests }}</h3>
+
     <p v-if="guests.length === 0">No guests found</p>
 
     <div v-for="(guests, floor) in filteredGuestsByFloor" :key="floor">
@@ -163,7 +165,13 @@ const filteredGuestsByFloor = computed(() => {
   return grouped;
 });
 
-// Obrir modal exportació
+const totalGuests = computed(() => {
+  if (selectedFloor.value === "all") {
+    return guests.value.length;
+  }
+  return guests.value.filter(g => g.floor === Number(selectedFloor.value)).length;
+});
+
 const openExportModal = () => {
   showErrors.value = false;
   weddingName.value = "";
@@ -242,6 +250,17 @@ const generatePDF = () => {
   });
   y += 15;
 
+  const totalGuestsInPDF = Object.values(filteredGuestsByFloor.value).reduce(
+    (acc, guestsArr) => acc + guestsArr.length,
+    0
+  );
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Total guests: ${totalGuestsInPDF}`, doc.internal.pageSize.getWidth() / 2, y, {
+    align: "center",
+  });
+  y += 15;
+
   // Capçalera taula convidats: Nom, Taula, Cadira (x fixes)
   const guestNameX = 15;
   const guestTableX = 120;
@@ -279,7 +298,6 @@ const generatePDF = () => {
         y = 20;
       }
     });
-
     y += 10;
   }
 
@@ -366,6 +384,13 @@ defineExpose({ fetchGuests })
   outline-color: #c0a16b;
   background-color: #d6cdbd;
   color: #524939;
+  margin-bottom: 4px;
+}
+
+.guest-counter {
+  font-weight: bold;
+  color: var(--primary);
+  margin-top: 0px;
 }
 
 .export-btn {
@@ -384,7 +409,6 @@ defineExpose({ fetchGuests })
   background-color: #4f3e18;
 }
 
-/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;

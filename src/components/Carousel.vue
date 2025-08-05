@@ -1,6 +1,6 @@
 <template>
   <div class="layout-container">
-    <h1 class="title">Layout {{ layoutNum }}</h1>
+    <h1 class="title">{{ layoutTitle }}</h1>
 
     <div class="carousel-container">
       <button @click.stop="prevLayout" class="nav-button" aria-label="Previous layout">
@@ -140,6 +140,11 @@ const observations = ref("");
 const tablesData = ref([]);
 const seatIdMap = ref({});
 const emit = defineEmits(["guests"]);
+
+const layoutTitle = computed(() => {
+  const layout = currentLayout.value;
+  return layout ? `Layout ${layoutNum.value} - (${layout.chairCount} chairs)` : `Layout ${layoutNum.value}`;
+})
 
 onMounted(async () => {
   try {

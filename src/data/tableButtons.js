@@ -1,6 +1,7 @@
 export const tableButtons = [
   {
     id: 'layout1',
+    chairCount: 121,
     tables: [
       { x: 29.5, y: 14 },
       { x: 29.5, y: 36 },
@@ -17,6 +18,7 @@ export const tableButtons = [
   },
   {
     id: 'layout2',
+    chairCount: 185,
     tables: [
       { x: 27, y: 28 },
       { x: 27.6, y: 68 },
@@ -29,6 +31,7 @@ export const tableButtons = [
   },
   {
     id: 'layout3',
+    chairCount: 210,
     tables: [
       { x: 27.5, y: 28 },
       { x: 27.5, y: 68 },
@@ -43,6 +46,7 @@ export const tableButtons = [
   },
   {
     id: 'layout4',
+    chairCount: 302,
     tables: [
       { x: 27.5, y: 28 },
       { x: 27.5, y: 68 },
