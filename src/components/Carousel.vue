@@ -53,11 +53,10 @@
           {{ idx + 1 }}
         </button>
 
-        <div class="test">Chairs for selected table: {{ chairsForSelectedTable }}</div>
         <button class="close-btn" @click="closeZoom">Close</button>
       </div>
 
-      <!-- Name input below image -->
+      <!-- Targeta d'edició d'hoste millorada -->
       <div v-if="selectedChairIndex !== null" class="chair-name-input">
         <label for="chairName"><b>Guest for chair {{ selectedChairIndex + 1 }}:</b></label>
         <input
@@ -67,43 +66,66 @@
           @keyup.enter="saveGuestName"
           placeholder="Name"
         />
-        <button 
-          @click="saveGuestName"
-        >
-          Save
-        </button>
-        <button 
-          @click="deleteGuest"
-          :disabled="!chairNameInput.trim()"
-        >
-          Delete
-        </button>
+        
+        <!-- Botons Save i Delete alineats horitzontalment -->
+        <div class="button-row">
+          <button 
+            @click="saveGuestName"
+            class="save-btn"
+          >
+            Save
+          </button>
+          <button 
+            @click="deleteGuest"
+            :disabled="!chairNameInput.trim()"
+            class="delete-btn"
+          >
+            Delete
+          </button>
+        </div>
 
-        <!-- New dietary and allergy checkboxes -->
-        <div class="guest-options" style="margin-top: 10px;">
+        <!-- Preferències dietètiques en una sola columna -->
+        <div class="guest-options">
           <p><b>Dietary preferences:</b></p>
-          <label><input type="checkbox" v-model="isChild" /> Child</label><br />
-          <label><input type="checkbox" v-model="isVegetarian" /> Vegetarian</label><br />
-          <label><input type="checkbox" v-model="isVegan" /> Vegan</label><br />
-          <label><input type="checkbox" v-model="isGlutenIntolerant" /> Gluten Intolerant</label><br />
-          <label>
-            <input type="checkbox" v-model="hasOtherDiet" /> Other
-          </label>
-          <div v-if="hasOtherDiet" style="margin-left: 20px; margin-top: 4px;">
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <label>Child</label>
+              <input type="checkbox" v-model="isChild" />
+            </div>
+            <div class="checkbox-item">
+              <label>Vegetarian</label>
+              <input type="checkbox" v-model="isVegetarian" />
+            </div>
+            <div class="checkbox-item">
+              <label>Vegan</label>
+              <input type="checkbox" v-model="isVegan" />
+            </div>
+            <div class="checkbox-item">
+              <label>Gluten Intolerant</label>
+              <input type="checkbox" v-model="isGlutenIntolerant" />
+            </div>
+            <div class="checkbox-item checkbox-full-width">
+              <label>Other</label>
+              <input type="checkbox" v-model="hasOtherDiet" />
+            </div>
+          </div>
+          
+          <div v-if="hasOtherDiet" class="other-diet-input">
             <input type="text" v-model="otherDietText" placeholder="Please specify" />
           </div>
 
-          <p style="margin-top: 10px;"><b>Allergies:</b></p>
-          <label>
+          <p><b>Allergies:</b></p>
+          <div class="checkbox-item single-checkbox">
+            <label>Has allergies</label>
             <input type="checkbox" v-model="hasAllergies" />
-            Has allergies
-          </label>
-          <div v-if="hasAllergies" style="margin-left: 20px; margin-top: 4px;">
+          </div>
+          
+          <div v-if="hasAllergies" class="allergy-input">
             <input type="text" v-model="allergyText" placeholder="Please specify allergies" />
           </div>
 
-          <p style="margin-top: 10px;"><b>Observations:</b></p>
-          <textarea v-model="observations" placeholder="Additional notes..." rows="3" style="width: 100%;"></textarea>
+          <p><b>Observations:</b></p>
+          <textarea v-model="observations" placeholder="Additional notes..." rows="3"></textarea>
         </div>
       </div>
     </div>
@@ -324,7 +346,6 @@ const deleteGuest = async () => {
   }
 }
 
-
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;
   const tableIndex = selectedTableIndex.value;
@@ -490,7 +511,7 @@ const prevLayout = () => {
   border-radius: 4px;
 }
 
-/* ✅ Contenidor de la targeta d’edició */
+/* Contenidor principal de la targeta d'edició millorat */
 .chair-name-input {
   position: absolute;
   top: 50%;
@@ -504,88 +525,180 @@ const prevLayout = () => {
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   max-height: 80vh;
   overflow-y: auto;
-  width: 260px;
+  width: 280px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* ✅ Input de text */
-.chair-name-input input[type="text"] {
-  padding: 6px 8px;
+/* Input de nom */
+.chair-name-input > input[type="text"] {
+  padding: 8px 12px;
   border: 2px solid #ccc;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   width: 100%;
   text-align: center;
+  box-sizing: border-box;
 }
 
-/* ✅ Botons "Save" i "Delete" en la mateixa línia */
+/* Contenidor dels botons Save i Delete */
 .button-row {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin: 8px 0;
 }
 
 .button-row button {
   flex: 1;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
   color: white;
+  min-height: 36px;
 }
 
-.button-row .save-btn {
+.save-btn {
   background-color: #007ac1;
 }
 
-.button-row .save-btn:hover {
+.save-btn:hover {
   background-color: #005f99;
+  transform: translateY(-1px);
 }
 
-.button-row .delete-btn {
+.delete-btn {
   background-color: #e63946;
 }
 
-.button-row .delete-btn:hover {
+.delete-btn:hover:not(:disabled) {
   background-color: #b22222;
+  transform: translateY(-1px);
 }
 
-/* ✅ Checkbox alineats correctament */
-.chair-name-input .checkbox-item {
+.delete-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Contenidor de les opcions d'hoste */
+.guest-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guest-options p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+/* Checkboxes en una sola columna - millor alineació */
+.checkbox-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Item individual de checkbox - alineació perfecta */
+.checkbox-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  min-height: 26px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.chair-name-input .checkbox-item label {
+.checkbox-item label {
+  text-align: left;
+  cursor: pointer;
+  color: #2c3e50;
+  font-weight: 500;
   flex: 1;
-  text-align: left;
+  margin-right: 8px;
 }
 
-.chair-name-input .checkbox-item input[type="checkbox"] {
-  margin-left: 12px;
+.checkbox-item input[type="checkbox"] {
+  margin: 0;
   transform: scale(1.2);
-  
-  text-align: left;
-
+  cursor: pointer;
+  accent-color: #007ac1;
+  flex-shrink: 0;
 }
 
-/* ✅ Responsive */
-@media (max-width: 600px) {
+
+
+
+/* Checkbox individual (per allergies) */
+.single-checkbox {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+/* Inputs específics per "Other" i "Allergies" */
+.other-diet-input, .allergy-input {
+  margin-top: 4px;
+}
+
+.other-diet-input input, .allergy-input input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+/* Textarea per observacions */
+.guest-options textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+  box-sizing: border-box;
+}
+
+.guest-options textarea:focus,
+.other-diet-input input:focus,
+.allergy-input input:focus,
+.chair-name-input > input[type="text"]:focus {
+  outline: none;
+  border-color: #007ac1;
+  box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
+}
+
+/* Responsive per pantalles petites */
+@media (max-width: 768px) {
   .chair-name-input {
     position: fixed;
     top: auto;
-    bottom: 30px;
-    right: 5vw;
-    transform: none;
-    width: 90vw;
-    max-height: 60vh;
+    bottom: 20px;
+    right: 50%;
+    transform: translateX(50%);
+    width: calc(100vw - 40px);
+    max-width: 350px;
+    max-height: 70vh;
+  }
+  
+  .checkbox-grid {
+    gap: 6px;
   }
 }
 </style>
