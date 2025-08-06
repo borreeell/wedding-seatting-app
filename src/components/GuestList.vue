@@ -122,6 +122,10 @@ const fetchGuests = async () => {
         chair: row.seat_number,
         table: row.table_number,
         floor: row.floor,
+        // Afegir les dades dietètiques (assumint que l'API les retorna)
+        dietary: row.dietary || {}, // objecte amb les preferències dietètiques
+        allergies: row.allergies || null, // text amb al·lèrgies
+        observations: row.observations || null // observacions adicionals
       }));
 
     guests.value = parsed;
@@ -172,6 +176,30 @@ const totalGuests = computed(() => {
   return guests.value.filter(g => g.floor === Number(selectedFloor.value)).length;
 });
 
+// Funció auxiliar per crear el text de les preferències dietètiques
+const getDietaryInfo = (guest) => {
+  const dietary = guest.dietary || {};
+  const allergies = guest.allergies;
+  const observations = guest.observations;
+  
+  const dietaryItems = [];
+  
+  // Checkbox items
+  if (dietary.child) dietaryItems.push("Child");
+  if (dietary.vegetarian) dietaryItems.push("Vegetarian");
+  if (dietary.vegan) dietaryItems.push("Vegan");  
+  if (dietary.glutenIntolerant) dietaryItems.push("Gluten Free");
+  if (dietary.otherDiet) dietaryItems.push(`Other: ${dietary.otherDiet}`);
+  
+  // Al·lèrgies
+  if (allergies) dietaryItems.push(`Allergies: ${allergies}`);
+  
+  // Observacions
+  if (observations) dietaryItems.push(`Notes: ${observations}`);
+  
+  return dietaryItems.length > 0 ? dietaryItems.join(", ") : "";
+};
+
 const openExportModal = () => {
   showErrors.value = false;
   weddingName.value = "";
@@ -219,9 +247,7 @@ const generatePDF = () => {
 
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  // Etiquetes columna x = 10
   const labelX = 10;
-  // Valors columna x = 60
   const valueX = 60;
 
   // Info boda
@@ -261,10 +287,11 @@ const generatePDF = () => {
   });
   y += 15;
 
-  // Capçalera taula convidats: Nom, Taula, Cadira (x fixes)
+  // Capçaleres de la taula (ajustar posicions per fer espai per la info dietètica)
   const guestNameX = 15;
-  const guestTableX = 120;
-  const guestChairX = 160;
+  const guestTableX = 80;
+  const guestChairX = 110;
+  const guestDietaryX = 140; // Nova columna per info dietètica
 
   for (const layout of Object.keys(filteredGuestsByFloor.value).sort()) {
     doc.setFontSize(14);
@@ -272,12 +299,13 @@ const generatePDF = () => {
     doc.text(`Layout ${layout}:`, labelX, y);
     y += 10;
 
-    // Capçalera de la taula de convidats
-    doc.setFontSize(12);
+    // Capçalera de la taula de convidats (ampliada)
+    doc.setFontSize(10); // Font més petita per que hi càpiga tot
     doc.setFont("helvetica", "bold");
     doc.text("Guest Name", guestNameX, y);
     doc.text("Table", guestTableX, y);
     doc.text("Chair", guestChairX, y);
+    doc.text("Dietary Info", guestDietaryX, y);
     y += 6;
 
     doc.setDrawColor(0);
@@ -287,13 +315,38 @@ const generatePDF = () => {
 
     doc.setFont("helvetica", "normal");
 
-    filteredGuestsByFloor.value[layout].forEach((g) => {
-      doc.text(g.name, guestNameX, y);
-      doc.text(String(g.table), guestTableX, y);
-      doc.text(String(g.chair), guestChairX, y);
-      y += 7;
+    filteredGuestsByFloor.value[layout].forEach((guest) => {
+      const dietaryInfo = getDietaryInfo(guest);
+      
+      // Nom del convidat
+      doc.text(guest.name, guestNameX, y);
+      
+      // Taula i cadira
+      doc.text(String(guest.table), guestTableX, y);
+      doc.text(String(guest.chair), guestChairX, y);
+      
+      // Info dietètica (si n'hi ha)
+      if (dietaryInfo) {
+        doc.setFontSize(8); // Font encara més petita per la info dietètica
+        
+        // Si el text és molt llarg, parteix-lo en línies
+        const maxWidth = 60; // Amplada màxima en unitats PDF
+        const lines = doc.splitTextToSize(dietaryInfo, maxWidth);
+        
+        lines.forEach((line, index) => {
+          doc.text(line, guestDietaryX, y + (index * 3));
+        });
+        
+        doc.setFontSize(10); // Tornar a la mida normal
+        
+        // Ajustar y basant-se en quantes línies s'han afegit
+        y += Math.max(7, lines.length * 3);
+      } else {
+        y += 7;
+      }
 
-      if (y > 270) {
+      // Control de pàgina
+      if (y > 260) { // Reduïr el límit per deixar més espai
         doc.addPage();
         y = 20;
       }
