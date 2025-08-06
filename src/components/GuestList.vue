@@ -41,15 +41,35 @@
     <div v-for="(guests, floor) in filteredGuestsByFloor" :key="floor">
       <h3>Floor {{ floor }}:</h3>
       <ul>
-        <li v-for="guest in guests" :key="guest.id">
+        <li 
+          v-for="guest in guests" 
+          :key="guest.id"
+          @click="openGuestInfoModal(guest)"
+        >
           {{ guest.name }} - Table {{ guest.table }}, Chair {{ guest.chair }}
         </li>
       </ul>
     </div>
 
+    <!-- Guest info modal -->
+     <div v-if="showGuestInfoModal" class="modal-overlay" @click.self="closeGuestInfoModal">
+        <div class="modal-content">
+          <h3>Guest Information:</h3>
+          <p><strong>Name:</strong>{{ selectedGuest.name }}</p>
+          <p><strong>Floor:</strong>{{ selectedGuest.floor }}</p>
+          <p><strong>Table:</strong>{{ selectedGuest.table }}</p>
+          <p><strong>Chair:</strong>{{ selectedGuest.chair }}</p>
+          <hr />
+          <p><strong>Allergies:</strong>{{ selectedGuest.allergies }}</p>
+          <p><strong>Diet:</strong>{{ selectedGuest.diet }}</p>
+          <p><strong>Observations:</strong>{{ selectedGuest.notes }}</p>
+
+          <button @click="closeGuestInfoModal">Close</button>
+        </div>
+     </div>
+
     <button class="export-btn" @click="openExportModal">Export Guest List as PDF</button>
 
-    <!-- Modal per dades de la boda -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeExportModal">
       <div class="modal-content">
         <h3>Enter Wedding Details</h3>
@@ -106,6 +126,19 @@ const contactPhone = ref("");
 const showModal = ref(false);
 const showErrors = ref(false);
 
+const selectedGuest = ref(null);
+const showGuestInfoModal = ref(false);
+
+const openGuestInfoModal = (guest) => {
+  showGuestInfoModal.value = true;
+  selectedGuest.value = guest;
+}
+
+const closeGuestInfoModal = () => {
+  showGuestInfoModal.value = false;
+  selectedGuest.value = null;
+}
+
 const toggleOpen = (value) => {
   open.value = value;
   localStorage.setItem("guestListOpen", value.toString());
@@ -122,6 +155,9 @@ const fetchGuests = async () => {
         chair: row.seat_number,
         table: row.table_number,
         floor: row.floor,
+        allergies: row.allergies || "None",
+        diet: row.diet || "None",
+        notes: row.notes || "-",
       }));
 
     guests.value = parsed;
@@ -391,6 +427,17 @@ defineExpose({ fetchGuests })
   font-weight: bold;
   color: var(--primary);
   margin-top: 0px;
+}
+
+.guest-item {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.guest-item:hover {
+  background-color: #f0f0f0;
 }
 
 .export-btn {
