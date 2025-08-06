@@ -70,7 +70,7 @@
         <!-- Botons Save i Delete alineats horitzontalment -->
         <div class="button-row">
           <button 
-            @click="saveGuestName"
+            @click="saveGuestData"
             class="save-btn"
           >
             Save
@@ -172,6 +172,7 @@ onMounted(async () => {
   try {
     const response = await api.getTables();
     tablesData.value = response.data;
+    console.log(tablesData.value)
 
     // Build the map: layout -> layout -> table -> chair -> seat_id
     const tempMap = {};
@@ -271,7 +272,7 @@ const resetExtraFields = () => {
   observations.value = "";
 };
 
-const saveGuestName = async () => {
+const saveGuestData = async () => {
   if (
     selectedTableIndex.value === null ||
     selectedChairIndex.value === null ||
@@ -281,25 +282,30 @@ const saveGuestName = async () => {
   const layoutKey = `layout${layoutNum.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
 
+  console.log("layoutKey:", layoutKey);
+  console.log("selectedTableIndex:", selectedTableIndex.value);
+  console.log("selectedChairIndex:", selectedChairIndex.value);
+  console.log("seatIdMap:", seatIdMap.value);
+  console.log("seatId:", seatId);
+
   if (!seatId) {
     alert("Seat ID not found");
     return;
   }
 
-  // Prepare data object to send - add your new fields here if your backend supports them
   const guestData = {
     name: chairNameInput.value.trim(),
     id_seat: seatId,
-    dietary: {
-      child: isChild.value,
-      vegetarian: isVegetarian.value,
-      vegan: isVegan.value,
-      glutenIntolerant: isGlutenIntolerant.value,
-      otherDiet: hasOtherDiet.value ? otherDietText.value.trim() : null,
-    },
-    allergies: hasAllergies.value ? allergyText.value.trim() : null,
+    isChild: isChild.value,
+    is_vegetarian: isVegetarian.value,
+    is_vegan: isVegan.value,
+    is_gluten_intolerant: isGlutenIntolerant.value,
+    has_other_diet: hasOtherDiet.value,
+    other_diet_text: hasOtherDiet.value ? otherDietText.value.trim() : null,
+    has_allergies: hasAllergies.value,
+    allergy_text: hasAllergies.value ? allergyText.value.trim() : null,
     observations: observations.value.trim(),
-  };
+  }
 
   try {
     // Assuming your API supports this structure, adapt if needed
@@ -309,10 +315,8 @@ const saveGuestName = async () => {
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) {
       seat.guest_name = chairNameInput.value.trim();
-      // Also update your seat with these new fields if you store them locally
     }
 
-    emit("guests");
     closeZoom();
   } catch (error) {
     console.error("Error saving guest:", error);
