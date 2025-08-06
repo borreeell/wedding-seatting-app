@@ -14,13 +14,55 @@ router.get('/guests', (req, res) => {
 
 // POST -> Add guest 
 router.post('/guests', (req, res) => {
-  const { name, id_seat } = req.body;
-  const query = `INSERT INTO guests (name, id_seat) VALUES (?, ?)`;
+  const { 
+    name, 
+    id_seat,
+    is_child = false,
+    is_vegetarian = false,
+    is_vegan = false,
+    is_gluten_intolerant = false,
+    has_other_diet = false,
+    other_diet_text = null,
+    has_allergies = false,
+    allergy_text = null,
+    observations = null,
+  } = req.body;
 
-  db.query(query, [name, id_seat], (err, result) => {
+  const query = `
+    INSERT INTO guests (
+      name, id_seat,
+      is_child, is_vegetarian, is_vegan, is_gluten_intolerant,
+      has_other_diet, other_diet_text,
+      has_allergies, allergy_text,
+      observations
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    name, id_seat,
+    is_child, is_vegetarian, is_vegan, is_gluten_intolerant,
+    has_other_diet, other_diet_text,
+    has_allergies, allergy_text,
+    observations
+  ];
+
+  db.query(query, values, (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(201).json({ id: result.insertId, name, id_seat });
-  });
+    res.status(201).json({
+      id: result.insertId,
+      name,
+      id_seat,
+      is_child,
+      is_vegetarian, 
+      is_vegan,
+      is_gluten_intolerant,
+      has_other_diet,
+      other_diet_text,
+      has_allergies,
+      allergy_text,
+      observations,
+    })
+  })
 });
 
 // DELETE -> Delete guest
