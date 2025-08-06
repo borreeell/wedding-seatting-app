@@ -172,7 +172,6 @@ onMounted(async () => {
   try {
     const response = await api.getTables();
     tablesData.value = response.data;
-    console.log(tablesData.value)
 
     // Build the map: layout -> layout -> table -> chair -> seat_id
     const tempMap = {};
@@ -640,9 +639,6 @@ const prevLayout = () => {
   accent-color: #007ac1;
   flex-shrink: 0;
 }
-
-
-
 
 /* Checkbox individual (per allergies) */
 .single-checkbox {
