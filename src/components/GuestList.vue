@@ -38,35 +38,19 @@
 
     <p v-if="guests.length === 0">No guests found</p>
 
-    <div v-for="(guests, floor) in filteredGuestsByFloor" :key="floor">
+    <div v-for="(guestsOnFloor, floor) in filteredGuestsByFloor" :key="floor">
       <h3>Floor {{ floor }}:</h3>
       <ul>
         <li 
-          v-for="guest in guests" 
+          v-for="guest in guestsOnFloor" 
           :key="guest.id"
-          @click="openGuestInfoModal(guest)"
+          @click="fetchGuestDetails(guest.id_seat)"
+          class="guest-item"
         >
           {{ guest.name }} - Table {{ guest.table }}, Chair {{ guest.chair }}
         </li>
       </ul>
     </div>
-
-    <!-- Guest info modal -->
-     <div v-if="showGuestInfoModal" class="modal-overlay" @click.self="closeGuestInfoModal">
-        <div class="modal-content">
-          <h3>Guest Information:</h3>
-          <p><strong>Name:</strong>{{ selectedGuest.name }}</p>
-          <p><strong>Floor:</strong>{{ selectedGuest.floor }}</p>
-          <p><strong>Table:</strong>{{ selectedGuest.table }}</p>
-          <p><strong>Chair:</strong>{{ selectedGuest.chair }}</p>
-          <hr />
-          <p><strong>Allergies:</strong>{{ selectedGuest.allergies }}</p>
-          <p><strong>Diet:</strong>{{ selectedGuest.diet }}</p>
-          <p><strong>Observations:</strong>{{ selectedGuest.notes }}</p>
-
-          <button @click="closeGuestInfoModal">Close</button>
-        </div>
-     </div>
 
     <button class="export-btn" @click="openExportModal">Export Guest List as PDF</button>
 
@@ -108,6 +92,81 @@
         </form>
       </div>
     </div>
+
+    <div v-if="showGuestInfoModal" class="modal-overlay" @click.self="closeGuestInfoModal">
+      <div class="chair-name-input">
+        <h3>Guest {{ selectedGuest?.name }} info</h3>
+
+        <table>
+          <caption>Seating info</caption>
+          <thead>
+            <tr>
+              <th>Floor</th>
+              <th>Table</th>
+              <th>Chair</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ selectedGuest?.floor }}</td>
+              <td>{{ selectedGuest?.table }}</td>
+              <td>{{ selectedGuest?.chair }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr style="margin: 12px 0" />
+
+        <div class="guest-options">
+          <!-- Child -->
+          <div class="checkbox-item">
+            <label>Child</label>
+            <input type="checkbox" :checked="selectedGuest?.isChild" disabled />
+          </div>
+
+          <!-- Dietary -->
+          <p>Dietary preferences:</p>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <label>Vegetarian</label>
+              <input type="checkbox" :checked="selectedGuest?.dietary?.vegetarian" disabled />
+            </div>
+            <div class="checkbox-item">
+              <label>Vegan</label>
+              <input type="checkbox" :checked="selectedGuest?.dietary?.vegan" disabled />
+            </div>
+            <div class="checkbox-item">
+              <label>Gluten Intolerant</label>
+              <input type="checkbox" :checked="selectedGuest?.dietary?.glutenIntolerant" disabled />
+            </div>
+            <div class="checkbox-item other-diet-input">
+              <label>Other</label>
+              <input type="text" :value="selectedGuest?.dietary?.other || ''" readonly />
+            </div>
+          </div>
+
+          <!-- Allergies -->
+          <p>Allergies:</p>
+          <div class="single-checkbox">
+            <label>
+              <input type="checkbox" :checked="!!selectedGuest?.allergies" disabled />
+              Has allergies
+            </label>
+            <div class="allergy-input">
+              <input type="text" :value="selectedGuest?.allergies || ''" readonly />
+            </div>
+          </div>
+
+          <!-- Observations -->
+          <p>Observations:</p>
+          <textarea readonly>{{ selectedGuest?.observations || '' }}</textarea>
+        </div>
+
+        <div class="button-row">
+          <button class="save-btn" @click="closeGuestInfoModal">Close</button>
+        </div>
+      </div>
+    </div>
   </aside>
 </template>
 
@@ -130,35 +189,65 @@ const selectedGuest = ref(null);
 const showGuestInfoModal = ref(false);
 
 const openGuestInfoModal = (guest) => {
-  showGuestInfoModal.value = true;
   selectedGuest.value = guest;
-}
+  showGuestInfoModal.value = true;
+};
 
 const closeGuestInfoModal = () => {
-  showGuestInfoModal.value = false;
   selectedGuest.value = null;
-}
+  showGuestInfoModal.value = false;
+};
 
 const toggleOpen = (value) => {
   open.value = value;
   localStorage.setItem("guestListOpen", value.toString());
 };
 
+const fetchGuestDetails = (seatId) => {
+  // Busca el invitado ya en el array local:
+  const guest = guests.value.find(g => g.id_seat === seatId);
+  if (!guest) {
+    console.warn(`Guest con id_seat ${seatId} no encontrado`);
+    return;
+  }
+
+  // Si necesitas más detalles, puedes mapear aquí los campos extra del guest para el modal:
+  openGuestInfoModal({
+    ...guest,
+    isChild: guest.isChild,
+    dietary: {
+      vegetarian: !!guest.dietary?.vegetarian,
+      vegan: !!guest.dietary?.vegan,
+      glutenIntolerant: !!guest.dietary?.glutenIntolerant,
+      other: guest.dietary?.other || "",
+    },
+    allergies: guest.allergies || "",
+    observations: guest.observations || "",
+  });
+};
+
 const fetchGuests = async () => {
   try {
     const { data } = await api.getTables();
+    console.log(data);
     const parsed = data
-      .filter((row) => row.guest_name) // Only seats with guests
-      .map((row, index) => ({
-        id: index + 1,
+      .filter((row) => row.guest_name)
+      .map((row) => ({
+        id: row.guest_id,
+        id_seat: row.id_seat,
         name: row.guest_name,
         chair: row.seat_number,
         table: row.table_number,
         floor: row.floor,
-        // Afegir les dades dietètiques (assumint que l'API les retorna)
-        dietary: row.dietary || {}, // objecte amb les preferències dietètiques
-        allergies: row.allergies || null, // text amb al·lèrgies
-        observations: row.observations || null // observacions adicionals
+        isChild: !!row.is_child,
+        dietary: {
+          vegetarian: !!row.is_vegetarian,
+          vegan: !!row.is_vegan,
+          glutenIntolerant: !!row.is_gluten_intolerant,
+          other: row.has_other_diet ? row.other_diet_text : "",
+        },
+        allergies: row.has_allergies ? row.allergy_text : "",
+        observations: row.observations || ""
       }));
 
     guests.value = parsed;
@@ -209,27 +298,23 @@ const totalGuests = computed(() => {
   return guests.value.filter(g => g.floor === Number(selectedFloor.value)).length;
 });
 
-// Funció auxiliar per crear el text de les preferències dietètiques
 const getDietaryInfo = (guest) => {
   const dietary = guest.dietary || {};
   const allergies = guest.allergies;
   const observations = guest.observations;
-  
+
   const dietaryItems = [];
-  
-  // Checkbox items
-  if (dietary.child) dietaryItems.push("Child");
+
+  if (guest.isChild) dietaryItems.push("Child");
   if (dietary.vegetarian) dietaryItems.push("Vegetarian");
-  if (dietary.vegan) dietaryItems.push("Vegan");  
+  if (dietary.vegan) dietaryItems.push("Vegan");
   if (dietary.glutenIntolerant) dietaryItems.push("Gluten Free");
-  if (dietary.otherDiet) dietaryItems.push(`Other: ${dietary.otherDiet}`);
-  
-  // Al·lèrgies
+  if (dietary.other) dietaryItems.push(`Other: ${dietary.other}`);
+
   if (allergies) dietaryItems.push(`Allergies: ${allergies}`);
-  
-  // Observacions
+
   if (observations) dietaryItems.push(`Notes: ${observations}`);
-  
+
   return dietaryItems.length > 0 ? dietaryItems.join(", ") : "";
 };
 
@@ -241,13 +326,11 @@ const openExportModal = () => {
   showModal.value = true;
 };
 
-// Tancar modal exportació
 const closeExportModal = () => {
   showModal.value = false;
   showErrors.value = false;
 };
 
-// Validació formulari
 const formIsValid = computed(() => {
   return (
     weddingName.value.trim().length > 0 &&
@@ -256,7 +339,6 @@ const formIsValid = computed(() => {
   );
 });
 
-// Generar PDF
 const generatePDF = () => {
   showErrors.value = true;
   if (!formIsValid.value) return;
@@ -350,28 +432,28 @@ const generatePDF = () => {
 
     filteredGuestsByFloor.value[layout].forEach((guest) => {
       const dietaryInfo = getDietaryInfo(guest);
-      
+
       // Nom del convidat
       doc.text(guest.name, guestNameX, y);
-      
+
       // Taula i cadira
       doc.text(String(guest.table), guestTableX, y);
       doc.text(String(guest.chair), guestChairX, y);
-      
+
       // Info dietètica (si n'hi ha)
       if (dietaryInfo) {
         doc.setFontSize(8); // Font encara més petita per la info dietètica
-        
+
         // Si el text és molt llarg, parteix-lo en línies
         const maxWidth = 60; // Amplada màxima en unitats PDF
         const lines = doc.splitTextToSize(dietaryInfo, maxWidth);
-        
+
         lines.forEach((line, index) => {
           doc.text(line, guestDietaryX, y + (index * 3));
         });
-        
+
         doc.setFontSize(10); // Tornar a la mida normal
-        
+
         // Ajustar y basant-se en quantes línies s'han afegit
         y += Math.max(7, lines.length * 3);
       } else {
@@ -583,4 +665,140 @@ defineExpose({ fetchGuests })
   background-color: #c2bca6;
   cursor: not-allowed;
 }
+
+.chair-name-input {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #be9772;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  z-index: 1010;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+table {
+  border-collapse: collapse;
+  border: 2px solid wheat;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+caption {
+  caption-side: top;
+  padding: 10px;
+  font-weight: 600;
+}
+
+th, td {
+  border: 1px solid wheat;
+  padding: 8px 10px;
+}
+
+.chair-name-input > input[type="text"] {
+  padding: 8px 12px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.guest-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guest-options p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.checkbox-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.checkbox-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  min-height: 26px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.checkbox-item label {
+  text-align: left;
+  cursor: default;
+  color: #2c3e50;
+  font-weight: 500;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+  margin: 0;
+  transform: scale(1.2);
+  cursor: default;
+  accent-color: #007ac1;
+  flex-shrink: 0;
+}
+
+.single-checkbox {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+.other-diet-input input,
+.allergy-input input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+}
+
+.guest-options textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+}
+
+.guest-options textarea:focus,
+.other-diet-input input:focus,
+.allergy-input input:focus,
+.chair-name-input > input[type="text"]:focus {
+  outline: none;
+  border-color: #007ac1;
+  box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
+}
 </style>
+

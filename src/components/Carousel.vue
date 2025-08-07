@@ -158,6 +158,7 @@ const otherDietText = ref("");
 const hasAllergies = ref(false);
 const allergyText = ref("");
 const observations = ref("");
+const guestDataCache = ref({});
 
 const tablesData = ref([]);
 const seatIdMap = ref({});
@@ -241,22 +242,85 @@ const isChairAssigned = (chairIndex) => {
 };
 
 const closeZoom = () => {
+  if (selectedChairIndex.value !== null && selectedTableIndex.value !== null) {
+    const layoutKey = `layout${layoutNum.value}`;
+    const cacheKey = `${layoutKey}-${selectedTableIndex.value}-${selectedChairIndex.value}`;
+    delete guestDataCache.value[cacheKey];
+  }
   showZoom.value = false;
   selectedTableIndex.value = null;
   selectedChairIndex.value = null;
+  chairNameInput.value = "";
+  resetExtraFields();
 };
 
 const handleChairClick = (chairIndex) => {
   selectedChairIndex.value = chairIndex;
 
   const layoutKey = `layout${layoutNum.value}`;
-  const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[chairIndex];
-  const seat = tablesData.value.find(s => s.seat_id === seatId);
+  const cacheKey = `${layoutKey}-${selectedTableIndex.value}-${chairIndex}`;
 
-  chairNameInput.value = seat?.guest_name || "";
+  if (guestDataCache.value[cacheKey]) {
+    const cached = guestDataCache.value[cacheKey];
+    chairNameInput.value = cached.name || "";
+    isChild.value = cached.isChild || false;
+    isVegetarian.value = cached.isVegetarian || false;
+    isVegan.value = cached.isVegan || false;
+    isGlutenIntolerant.value = cached.isGlutenIntolerant || false;
+    hasOtherDiet.value = cached.hasOtherDiet || false;
+    otherDietText.value = cached.otherDietText || "";
+    hasAllergies.value = cached.hasAllergies || false;
+    allergyText.value = cached.allergyText || "";
+    observations.value = cached.observations || "";
+  } else {
+    // Si no hay cache, carga desde API/local data
+    const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[chairIndex];
+    const seat = tablesData.value.find(s => s.seat_id === seatId) || {};
 
-  // TODO: if your API stores these extra fields, here you should also load them and set the reactive vars
-  resetExtraFields();
+    chairNameInput.value = seat.guest_name || "";
+    isChild.value = !!seat.is_child;
+    isVegetarian.value = !!seat.is_vegetarian;
+    isVegan.value = !!seat.is_vegan;
+    isGlutenIntolerant.value = !!seat.is_gluten_intolerant;
+    hasOtherDiet.value = !!seat.has_other_diet;
+    otherDietText.value = seat.other_diet_text || "";
+    hasAllergies.value = !!seat.has_allergies;
+    allergyText.value = seat.allergy_text || "";
+    observations.value = seat.observations || "";
+
+    guestDataCache.value[cacheKey] = {
+      name: chairNameInput.value,
+      isChild: isChild.value,
+      isVegetarian: isVegetarian.value,
+      isVegan: isVegan.value,
+      isGlutenIntolerant: isGlutenIntolerant.value,
+      hasOtherDiet: hasOtherDiet.value,
+      otherDietText: otherDietText.value,
+      hasAllergies: hasAllergies.value,
+      allergyText: allergyText.value,
+      observations: observations.value,
+    };
+  }
+};
+
+const updateCache = () => {
+  if (selectedChairIndex.value === null || selectedTableIndex.value === null) return;
+
+  const layoutKey = `layout${layoutNum.value}`;
+  const cacheKey = `${layoutKey}-${selectedTableIndex.value}-${selectedChairIndex.value}`;
+
+  guestDataCache.value[cacheKey] = {
+    name: chairNameInput.value,
+    isChild: isChild.value,
+    isVegetarian: isVegetarian.value,
+    isVegan: isVegan.value,
+    isGlutenIntolerant: isGlutenIntolerant.value,
+    hasOtherDiet: hasOtherDiet.value,
+    otherDietText: otherDietText.value,
+    hasAllergies: hasAllergies.value,
+    allergyText: allergyText.value,
+    observations: observations.value,
+  };
 };
 
 const resetExtraFields = () => {
@@ -325,7 +389,10 @@ const saveGuestData = async () => {
 
 const deleteGuest = async () => {
   const layoutKey = `layout${layoutNum.value}`;
+  const cacheKey = `${layoutKey}-${selectedTableIndex.value}-${selectedChairIndex.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
+
+  delete guestDataCache.value[cacheKey];
 
   if (!seatId) {
     alert("Seat ID not found");
