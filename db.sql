@@ -23,6 +23,15 @@ CREATE TABLE guests (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(60) NOT NULL,
     id_seat INT UNIQUE,
+    is_child BOOLEAN DEFAULT FALSE,
+    is_vegetarian BOOLEAN DEFAULT FALSE,
+    is_vegan BOOLEAN DEFAULT FALSE,
+    is_gluten_intolerant BOOLEAN DEFAULT FALSE,
+    has_other_diet BOOLEAN DEFAULT FALSE,
+    other_diet_text VARCHAR(100),
+    has_allergies BOOLEAN DEFAULT FALSE,
+    allergy_text VARCHAR(200),
+    observations TEXT,
     FOREIGN KEY (id_seat) REFERENCES seats(id)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -219,7 +228,7 @@ INSERT INTO seats (seat_number, id_table) VALUES
 (1, 't9l3'), (2, 't9l3'), (3, 't9l3'), (4, 't9l3'), (5, 't9l3'), 
 (6, 't9l3'),(7, 't9l3'), (8, 't9l3'), (9, 't9l3'), (10, 't9l3'), 
 (11, 't9l3'), (12, 't9l3'),(13, 't9l3'), (14, 't9l3'), (15, 't9l3'), 
-(16 't9l3'), (17, 't9l3'), (18, 't9l3'), (19, 't9l3'), (20, 't9l3'), 
+(16, 't9l3'), (17, 't9l3'), (18, 't9l3'), (19, 't9l3'), (20, 't9l3'), 
 (21, 't9l3'), (22, 't9l3'), (23, 't9l3'), (24, 't9l3'),
 
 -- Layout 4 --
