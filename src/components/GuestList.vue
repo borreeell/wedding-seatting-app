@@ -298,6 +298,7 @@ const totalGuests = computed(() => {
   return guests.value.filter(g => g.floor === Number(selectedFloor.value)).length;
 });
 
+// FUNCIÓ CORREGIDA - Ara inclou correctament les al·lèrgies
 const getDietaryInfo = (guest) => {
   const dietary = guest.dietary || {};
   const allergies = guest.allergies;
@@ -309,11 +310,16 @@ const getDietaryInfo = (guest) => {
   if (dietary.vegetarian) dietaryItems.push("Vegetarian");
   if (dietary.vegan) dietaryItems.push("Vegan");
   if (dietary.glutenIntolerant) dietaryItems.push("Gluten Free");
-  if (dietary.other) dietaryItems.push(`Other: ${dietary.other}`);
+  if (dietary.other && dietary.other.trim().length > 0) dietaryItems.push(`Other: ${dietary.other}`);
 
-  if (allergies) dietaryItems.push(`Allergies: ${allergies}`);
+  // CORRECCIÓ: Comprovar tant si té al·lèrgies com el text de les al·lèrgies
+  if (allergies && allergies.trim().length > 0) {
+    dietaryItems.push(`Allergies: ${allergies}`);
+  }
 
-  if (observations) dietaryItems.push(`Notes: ${observations}`);
+  if (observations && observations.trim().length > 0) {
+    dietaryItems.push(`Notes: ${observations}`);
+  }
 
   return dietaryItems.length > 0 ? dietaryItems.join(", ") : "";
 };
@@ -801,4 +807,3 @@ th, td {
   box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
 }
 </style>
-
