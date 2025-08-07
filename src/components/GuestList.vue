@@ -488,7 +488,7 @@ const generatePDF = () => {
       doc.setLineWidth(0.2);
       doc.line(10, y + 2, 200, y + 2); // Línia completa d'esquerra a dreta
       
-      y += 5; // Espai extra després de la línia
+      y += 12; // Més espai després de cada convidat (abans era 5, ara 12)
 
       // Control de pàgina
       if (y > 260) { // Reduïr el límit per deixar més espai
