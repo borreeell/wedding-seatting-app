@@ -204,14 +204,8 @@ const toggleOpen = (value) => {
 };
 
 const fetchGuestDetails = (seatId) => {
-  // Busca el invitado ya en el array local:
   const guest = guests.value.find(g => g.id_seat === seatId);
-  if (!guest) {
-    console.warn(`Guest con id_seat ${seatId} no encontrado`);
-    return;
-  }
 
-  // Si necesitas más detalles, puedes mapear aquí los campos extra del guest para el modal:
   openGuestInfoModal({
     ...guest,
     isChild: guest.isChild,
@@ -298,7 +292,6 @@ const totalGuests = computed(() => {
   return guests.value.filter(g => g.floor === Number(selectedFloor.value)).length;
 });
 
-// FUNCIÓ CORREGIDA - Ara inclou correctament les al·lèrgies
 const getDietaryInfo = (guest) => {
   const dietary = guest.dietary || {};
   const allergies = guest.allergies;
@@ -312,7 +305,6 @@ const getDietaryInfo = (guest) => {
   if (dietary.glutenIntolerant) dietaryItems.push("Gluten Free");
   if (dietary.other && dietary.other.trim().length > 0) dietaryItems.push(`Other: ${dietary.other}`);
 
-  // CORRECCIÓ: Comprovar tant si té al·lèrgies com el text de les al·lèrgies
   if (allergies && allergies.trim().length > 0) {
     dietaryItems.push(`Allergies: ${allergies}`);
   }
@@ -352,13 +344,12 @@ const generatePDF = () => {
   const doc = new jsPDF();
   let y = 20;
 
-  // Format data dd/mm/aa
+  // Date format dd/mm/aa
   const dateObj = new Date(weddingDate.value);
   const formatDate = `${String(dateObj.getDate()).padStart(2, "0")}/${String(
     dateObj.getMonth() + 1
   ).padStart(2, "0")}/${String(dateObj.getFullYear()).slice(-2)}`;
 
-  // Títol principal centrat i negreta
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
   doc.text("Wedding Guest List", doc.internal.pageSize.getWidth() / 2, y, {
@@ -371,7 +362,6 @@ const generatePDF = () => {
   const labelX = 10;
   const valueX = 60;
 
-  // Info boda
   doc.text("Name:", labelX, y);
   doc.setFont("helvetica", "normal");
   doc.text(weddingName.value, valueX, y);
@@ -389,7 +379,6 @@ const generatePDF = () => {
   doc.text(contactPhone.value, valueX, y);
   y += 12;
 
-  // Títol Guest List centrat i més gran
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
   doc.text("Guest List", doc.internal.pageSize.getWidth() / 2, y, {
@@ -408,11 +397,10 @@ const generatePDF = () => {
   });
   y += 15;
 
-  // Capçaleres de la taula - posicions centrades dins de cada columna
-  const col1Center = 42.5; // Centre de la primera columna (Guest Name): (10+75)/2
-  const col2Center = 90;    // Centre de la segona columna (Table): (75+105)/2  
-  const col3Center = 120;   // Centre de la tercera columna (Chair): (105+135)/2
-  const col4Center = 167.5; // Centre de la quarta columna (Dietary Info): (135+200)/2
+  const col1Center = 42.5;
+  const col2Center = 90;     
+  const col3Center = 120;   
+  const col4Center = 167.5; 
 
   for (const layout of Object.keys(filteredGuestsByFloor.value).sort()) {
     doc.setFontSize(14);
@@ -420,7 +408,6 @@ const generatePDF = () => {
     doc.text(`Layout ${layout}:`, labelX, y);
     y += 10;
 
-    // Capçalera de la taula de convidats - text centrat
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("Guest Name", col1Center, y, { align: "center" });
@@ -429,16 +416,14 @@ const generatePDF = () => {
     doc.text("Dietary Info", col4Center, y, { align: "center" });
     y += 6;
 
-    // Línia sota capçalera i línies verticals per separar les columnes de capçalera
     doc.setDrawColor(0);
     doc.setLineWidth(0.5);
-    doc.line(10, y, 200, y); // Línia sota capçalera
+    doc.line(10, y, 200, y);
     
-    // Línies verticals de capçalera
     doc.setLineWidth(0.3);
-    doc.line(75, y - 6, 75, y); // Entre nom i taula
-    doc.line(105, y - 6, 105, y); // Entre taula i cadira
-    doc.line(135, y - 6, 135, y); // Entre cadira i info dietètica
+    doc.line(75, y - 6, 75, y); 
+    doc.line(105, y - 6, 105, y); 
+    doc.line(135, y - 6, 135, y);
     
     y += 6;
 
@@ -447,51 +432,43 @@ const generatePDF = () => {
     filteredGuestsByFloor.value[layout].forEach((guest, index) => {
       const dietaryInfo = getDietaryInfo(guest);
 
-      // Línies verticals per separar columnes
-      doc.setDrawColor(200, 200, 200); // Gris clar
+      doc.setDrawColor(200, 200, 200);
       doc.setLineWidth(0.3);
-      doc.line(75, y - 3, 75, y + 10); // Entre nom i taula
-      doc.line(105, y - 3, 105, y + 10); // Entre taula i cadira
-      doc.line(135, y - 3, 135, y + 10); // Entre cadira i info dietètica
+      doc.line(75, y - 3, 75, y + 10);
+      doc.line(105, y - 3, 105, y + 10);
+      doc.line(135, y - 3, 135, y + 10);
 
-      // Nom del convidat - centrat a la primera columna
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.text(guest.name, col1Center, y, { align: "center" });
 
-      // Taula i cadira - centrats a les seves columnes
       doc.text(String(guest.table), col2Center, y, { align: "center" });
       doc.text(String(guest.chair), col3Center, y, { align: "center" });
 
-      // Info dietètica (si n'hi ha) - centrada a la quarta columna
       if (dietaryInfo) {
-        doc.setFontSize(8); // Font encara més petita per la info dietètica
+        doc.setFontSize(8);
 
-        // Si el text és molt llarg, parteix-lo en línies
-        const maxWidth = 60; // Amplada màxima en unitats PDF
+        const maxWidth = 60;
         const lines = doc.splitTextToSize(dietaryInfo, maxWidth);
 
         lines.forEach((line, lineIndex) => {
           doc.text(line, col4Center, y + (lineIndex * 3), { align: "center" });
         });
 
-        doc.setFontSize(10); // Tornar a la mida normal
+        doc.setFontSize(10);
 
-        // Ajustar y basant-se en quantes línies s'han afegit
         y += Math.max(7, lines.length * 3);
       } else {
         y += 7;
       }
 
-      // Línia horitzontal per separar cada convidat
-      doc.setDrawColor(220, 220, 220); // Gris més clar per les línies horitzontals
+      doc.setDrawColor(220, 220, 220);
       doc.setLineWidth(0.2);
-      doc.line(10, y + 2, 200, y + 2); // Línia completa d'esquerra a dreta
+      doc.line(10, y + 2, 200, y + 2);
       
-      y += 12; // Més espai després de cada convidat (abans era 5, ara 12)
+      y += 12;
 
-      // Control de pàgina
-      if (y > 260) { // Reduïr el límit per deixar més espai
+      if (y > 260) {
         doc.addPage();
         y = 20;
       }
@@ -599,7 +576,7 @@ defineExpose({ fetchGuests })
 }
 
 .guest-item:hover {
-  background-color: #f0f0f0;
+  text-decoration: underline;
 }
 
 .export-btn {

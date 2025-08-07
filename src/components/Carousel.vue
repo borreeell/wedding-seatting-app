@@ -30,7 +30,6 @@
       </button>
     </div>
 
-    <!-- ZOOM MODAL -->
     <div v-if="showZoom" class="zoom-modal" @click.self="closeZoom">
       <div class="zoom-content">
         <img 
@@ -56,18 +55,17 @@
         <button class="close-btn" @click="closeZoom">Close</button>
       </div>
 
-      <!-- Targeta d'edició d'hoste millorada -->
       <div v-if="selectedChairIndex !== null" class="chair-name-input">
         <label for="chairName"><b>Guest for chair {{ selectedChairIndex + 1 }}:</b></label>
         <input
           id="chairName"
           type="text"
           v-model="chairNameInput"
+          @input="updateCache"
           @keyup.enter="saveGuestName"
           placeholder="Name"
         />
         
-        <!-- Botons Save i Delete alineats horitzontalment -->
         <div class="button-row">
           <button 
             @click="saveGuestData"
@@ -84,48 +82,31 @@
           </button>
         </div>
 
-        <!-- Preferències dietètiques en una sola columna -->
         <div class="guest-options">
           <p><b>Dietary preferences:</b></p>
           <div class="checkbox-grid">
             <div class="checkbox-item">
               <label>Child</label>
-              <input type="checkbox" v-model="isChild" />
+              <input type="checkbox" v-model="isChild" @change="updateCache"/>
             </div>
             <div class="checkbox-item">
               <label>Vegetarian</label>
-              <input type="checkbox" v-model="isVegetarian" />
+              <input type="checkbox" v-model="isVegetarian" @change="updateCache"/>
             </div>
-            <div class="checkbox-item">
-              <label>Vegan</label>
-              <input type="checkbox" v-model="isVegan" />
-            </div>
-            <div class="checkbox-item">
-              <label>Gluten Intolerant</label>
-              <input type="checkbox" v-model="isGlutenIntolerant" />
-            </div>
-            <div class="checkbox-item checkbox-full-width">
-              <label>Other</label>
-              <input type="checkbox" v-model="hasOtherDiet" />
-            </div>
-          </div>
-          
-          <div v-if="hasOtherDiet" class="other-diet-input">
-            <input type="text" v-model="otherDietText" placeholder="Please specify" />
           </div>
 
           <p><b>Allergies:</b></p>
           <div class="checkbox-item single-checkbox">
             <label>Has allergies</label>
-            <input type="checkbox" v-model="hasAllergies" />
+            <input type="checkbox" v-model="hasAllergies" @change="updateCache"/>
           </div>
           
           <div v-if="hasAllergies" class="allergy-input">
-            <input type="text" v-model="allergyText" placeholder="Please specify allergies" />
+            <input type="text" v-model="allergyText" placeholder="Please specify allergies" @input="updateCache"/>
           </div>
 
           <p><b>Observations:</b></p>
-          <textarea v-model="observations" placeholder="Additional notes..." rows="3"></textarea>
+          <textarea v-model="observations" placeholder="Additional notes..." rows="3" @input="updateCache"></textarea>
         </div>
       </div>
     </div>
@@ -148,7 +129,6 @@ const selectedChairIndex = ref(null);
 const showZoom = ref(false);
 const chairNameInput = ref("");
 
-// New reactive states for checkboxes and inputs
 const isChild = ref(false);
 const isVegetarian = ref(false);
 const isVegan = ref(false);
@@ -228,7 +208,6 @@ const selectSeat = (index) => {
   selectedChairIndex.value = null;
   showZoom.value = true;
 
-  // Reset new fields when opening a new seat
   resetExtraFields();
 };
 
@@ -273,7 +252,6 @@ const handleChairClick = (chairIndex) => {
     allergyText.value = cached.allergyText || "";
     observations.value = cached.observations || "";
   } else {
-    // Si no hay cache, carga desde API/local data
     const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[chairIndex];
     const seat = tablesData.value.find(s => s.seat_id === seatId) || {};
 
@@ -345,12 +323,6 @@ const saveGuestData = async () => {
   const layoutKey = `layout${layoutNum.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
 
-  console.log("layoutKey:", layoutKey);
-  console.log("selectedTableIndex:", selectedTableIndex.value);
-  console.log("selectedChairIndex:", selectedChairIndex.value);
-  console.log("seatIdMap:", seatIdMap.value);
-  console.log("seatId:", seatId);
-
   if (!seatId) {
     alert("Seat ID not found");
     return;
@@ -371,7 +343,6 @@ const saveGuestData = async () => {
   }
 
   try {
-    // Assuming your API supports this structure, adapt if needed
     const response = await api.addGuest(guestData);
 
     emit("guests");
@@ -402,7 +373,6 @@ const deleteGuest = async () => {
   try {
     await api.deleteGuest(seatId);
 
-    // Actualiza localmente
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) seat.guest_name = null;
 
@@ -581,7 +551,6 @@ const prevLayout = () => {
   border-radius: 4px;
 }
 
-/* Contenidor principal de la targeta d'edició millorat */
 .chair-name-input {
   position: absolute;
   top: 50%;
@@ -601,7 +570,6 @@ const prevLayout = () => {
   gap: 12px;
 }
 
-/* Input de nom */
 .chair-name-input > input[type="text"] {
   padding: 8px 12px;
   border: 2px solid #ccc;
@@ -612,7 +580,6 @@ const prevLayout = () => {
   box-sizing: border-box;
 }
 
-/* Contenidor dels botons Save i Delete */
 .button-row {
   display: flex;
   justify-content: space-between;
@@ -656,7 +623,6 @@ const prevLayout = () => {
   cursor: not-allowed;
 }
 
-/* Contenidor de les opcions d'hoste */
 .guest-options {
   display: flex;
   flex-direction: column;
@@ -670,7 +636,6 @@ const prevLayout = () => {
   color: #2c3e50;
 }
 
-/* Checkboxes en una sola columna - millor alineació */
 .checkbox-grid {
   display: flex;
   flex-direction: column;
@@ -678,7 +643,6 @@ const prevLayout = () => {
   margin-top: 8px;
 }
 
-/* Item individual de checkbox - alineació perfecta */
 .checkbox-item {
   display: flex;
   justify-content: space-between;
@@ -707,7 +671,6 @@ const prevLayout = () => {
   flex-shrink: 0;
 }
 
-/* Checkbox individual (per allergies) */
 .single-checkbox {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 4px 8px;
@@ -715,7 +678,6 @@ const prevLayout = () => {
   margin-top: 6px;
 }
 
-/* Inputs específics per "Other" i "Allergies" */
 .other-diet-input, .allergy-input {
   margin-top: 4px;
 }
@@ -729,7 +691,6 @@ const prevLayout = () => {
   box-sizing: border-box;
 }
 
-/* Textarea per observacions */
 .guest-options textarea {
   width: 100%;
   padding: 8px 10px;
@@ -749,23 +710,5 @@ const prevLayout = () => {
   outline: none;
   border-color: #007ac1;
   box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
-}
-
-/* Responsive per pantalles petites */
-@media (max-width: 768px) {
-  .chair-name-input {
-    position: fixed;
-    top: auto;
-    bottom: 20px;
-    right: 50%;
-    transform: translateX(50%);
-    width: calc(100vw - 40px);
-    max-width: 350px;
-    max-height: 70vh;
-  }
-  
-  .checkbox-grid {
-    gap: 6px;
-  }
 }
 </style>
