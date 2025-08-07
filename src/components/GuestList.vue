@@ -429,17 +429,34 @@ const generatePDF = () => {
     doc.text("Dietary Info", guestDietaryX, y);
     y += 6;
 
+    // Línia sota capçalera i línies verticals per separar les columnes de capçalera
     doc.setDrawColor(0);
     doc.setLineWidth(0.5);
-    doc.line(10, y, 200, y); // línia sota capçalera
+    doc.line(10, y, 200, y); // Línia sota capçalera
+    
+    // Línies verticals de capçalera
+    doc.setLineWidth(0.3);
+    doc.line(75, y - 6, 75, y); // Entre nom i taula
+    doc.line(105, y - 6, 105, y); // Entre taula i cadira
+    doc.line(135, y - 6, 135, y); // Entre cadira i info dietètica
+    
     y += 6;
 
     doc.setFont("helvetica", "normal");
 
-    filteredGuestsByFloor.value[layout].forEach((guest) => {
+    filteredGuestsByFloor.value[layout].forEach((guest, index) => {
       const dietaryInfo = getDietaryInfo(guest);
 
+      // Línies verticals per separar columnes
+      doc.setDrawColor(200, 200, 200); // Gris clar
+      doc.setLineWidth(0.3);
+      doc.line(75, y - 3, 75, y + 10); // Entre nom i taula
+      doc.line(105, y - 3, 105, y + 10); // Entre taula i cadira
+      doc.line(135, y - 3, 135, y + 10); // Entre cadira i info dietètica
+
       // Nom del convidat
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
       doc.text(guest.name, guestNameX, y);
 
       // Taula i cadira
@@ -454,8 +471,8 @@ const generatePDF = () => {
         const maxWidth = 60; // Amplada màxima en unitats PDF
         const lines = doc.splitTextToSize(dietaryInfo, maxWidth);
 
-        lines.forEach((line, index) => {
-          doc.text(line, guestDietaryX, y + (index * 3));
+        lines.forEach((line, lineIndex) => {
+          doc.text(line, guestDietaryX, y + (lineIndex * 3));
         });
 
         doc.setFontSize(10); // Tornar a la mida normal
@@ -465,6 +482,13 @@ const generatePDF = () => {
       } else {
         y += 7;
       }
+
+      // Línia horitzontal per separar cada convidat
+      doc.setDrawColor(220, 220, 220); // Gris més clar per les línies horitzontals
+      doc.setLineWidth(0.2);
+      doc.line(10, y + 2, 200, y + 2); // Línia completa d'esquerra a dreta
+      
+      y += 5; // Espai extra després de la línia
 
       // Control de pàgina
       if (y > 260) { // Reduïr el límit per deixar més espai
