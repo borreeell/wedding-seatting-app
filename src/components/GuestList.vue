@@ -408,11 +408,11 @@ const generatePDF = () => {
   });
   y += 15;
 
-  // Capçaleres de la taula (ajustar posicions per fer espai per la info dietètica)
-  const guestNameX = 15;
-  const guestTableX = 80;
-  const guestChairX = 110;
-  const guestDietaryX = 140; // Nova columna per info dietètica
+  // Capçaleres de la taula - posicions centrades dins de cada columna
+  const col1Center = 42.5; // Centre de la primera columna (Guest Name): (10+75)/2
+  const col2Center = 90;    // Centre de la segona columna (Table): (75+105)/2  
+  const col3Center = 120;   // Centre de la tercera columna (Chair): (105+135)/2
+  const col4Center = 167.5; // Centre de la quarta columna (Dietary Info): (135+200)/2
 
   for (const layout of Object.keys(filteredGuestsByFloor.value).sort()) {
     doc.setFontSize(14);
@@ -420,13 +420,13 @@ const generatePDF = () => {
     doc.text(`Layout ${layout}:`, labelX, y);
     y += 10;
 
-    // Capçalera de la taula de convidats (ampliada)
-    doc.setFontSize(10); // Font més petita per que hi càpiga tot
+    // Capçalera de la taula de convidats - text centrat
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text("Guest Name", guestNameX, y);
-    doc.text("Table", guestTableX, y);
-    doc.text("Chair", guestChairX, y);
-    doc.text("Dietary Info", guestDietaryX, y);
+    doc.text("Guest Name", col1Center, y, { align: "center" });
+    doc.text("Table", col2Center, y, { align: "center" });
+    doc.text("Chair", col3Center, y, { align: "center" });
+    doc.text("Dietary Info", col4Center, y, { align: "center" });
     y += 6;
 
     // Línia sota capçalera i línies verticals per separar les columnes de capçalera
@@ -454,16 +454,16 @@ const generatePDF = () => {
       doc.line(105, y - 3, 105, y + 10); // Entre taula i cadira
       doc.line(135, y - 3, 135, y + 10); // Entre cadira i info dietètica
 
-      // Nom del convidat
+      // Nom del convidat - centrat a la primera columna
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.text(guest.name, guestNameX, y);
+      doc.text(guest.name, col1Center, y, { align: "center" });
 
-      // Taula i cadira
-      doc.text(String(guest.table), guestTableX, y);
-      doc.text(String(guest.chair), guestChairX, y);
+      // Taula i cadira - centrats a les seves columnes
+      doc.text(String(guest.table), col2Center, y, { align: "center" });
+      doc.text(String(guest.chair), col3Center, y, { align: "center" });
 
-      // Info dietètica (si n'hi ha)
+      // Info dietètica (si n'hi ha) - centrada a la quarta columna
       if (dietaryInfo) {
         doc.setFontSize(8); // Font encara més petita per la info dietètica
 
@@ -472,7 +472,7 @@ const generatePDF = () => {
         const lines = doc.splitTextToSize(dietaryInfo, maxWidth);
 
         lines.forEach((line, lineIndex) => {
-          doc.text(line, guestDietaryX, y + (lineIndex * 3));
+          doc.text(line, col4Center, y + (lineIndex * 3), { align: "center" });
         });
 
         doc.setFontSize(10); // Tornar a la mida normal
