@@ -87,16 +87,22 @@
 
           <div class="modal-buttons">
             <button type="button" @click="closeExportModal">Cancel</button>
-            <button type="submit" :disabled="!formIsValid">Export PDF</button>
+            <button type="submit" :disabled="!formIsValid">Export PDF <i class="pi pi-file-export"></i></button>
           </div>
         </form>
       </div>
     </div>
 
     <div v-if="showGuestInfoModal" class="modal-overlay" @click.self="closeGuestInfoModal">
-      <div class="chair-name-input">
-        <h3>Guest {{ selectedGuest?.name }} info</h3>
-
+      <div class="guest-info">
+        <div class="guestInfo-header">
+          <h2>{{ selectedGuest?.name }} info</h2>
+          <i 
+            class="pi pi-times" 
+            style="size: 1rem;"
+            @click="closeGuestInfoModal"  
+          ></i>
+        </div>
         <table>
           <caption>Seating info</caption>
           <thead>
@@ -118,52 +124,50 @@
         <hr style="margin: 12px 0" />
 
         <div class="guest-options">
-          <!-- Child -->
           <div class="checkbox-item">
             <label>Child</label>
-            <input type="checkbox" :checked="selectedGuest?.isChild" disabled />
+            <span>{{ selectedGuest?.isChild ? "Yes" : "No" }}</span>
           </div>
 
-          <!-- Dietary -->
           <p>Dietary preferences:</p>
           <div class="checkbox-grid">
             <div class="checkbox-item">
               <label>Vegetarian</label>
-              <input type="checkbox" :checked="selectedGuest?.dietary?.vegetarian" disabled />
+              <span>{{ selectedGuest?.dietary?.vegetarian ? "Yes" : "No" }}</span>
             </div>
             <div class="checkbox-item">
               <label>Vegan</label>
-              <input type="checkbox" :checked="selectedGuest?.dietary?.vegan" disabled />
+              <span>{{ selectedGuest?.dietary?.vegan ? "Yes" : "No" }}</span>
             </div>
             <div class="checkbox-item">
               <label>Gluten Intolerant</label>
-              <input type="checkbox" :checked="selectedGuest?.dietary?.glutenIntolerant" disabled />
+              <span>{{ selectedGuest?.dietary?.glutenIntolerant ? "Yes" : "No" }}</span>
             </div>
-            <div class="checkbox-item other-diet-input">
+            <div class="checkbox-item">
               <label>Other</label>
-              <input type="text" :value="selectedGuest?.dietary?.other || ''" readonly />
+              <span style="margin-left: 225px;">{{ selectedGuest?.dietary?.other ? "Yes" : "No" }}</span>
+            </div>
+            <div v-if="selectedGuest?.dietary?.other" class="other-diet-text">
+              <input 
+                type="text"
+                :value="selectedGuest?.dietary?.other"
+              />
             </div>
           </div>
 
-          <!-- Allergies -->
-          <p>Allergies:</p>
-          <div class="single-checkbox">
-            <label>
-              <input type="checkbox" :checked="!!selectedGuest?.allergies" disabled />
-              Has allergies
-            </label>
-            <div class="allergy-input">
-              <input type="text" :value="selectedGuest?.allergies || ''" readonly />
-            </div>
+          <p class="allergies-title">Allergies:</p>
+          <div class="checkbox-item">
+            <label>Has allergies</label>
+            <span style="margin-left: 225px;">{{ selectedGuest?.allergies ? "Yes" : "No"}}</span>
           </div>
-
-          <!-- Observations -->
-          <p>Observations:</p>
-          <textarea readonly>{{ selectedGuest?.observations || '' }}</textarea>
-        </div>
-
-        <div class="button-row">
-          <button class="save-btn" @click="closeGuestInfoModal">Close</button>
+          <div v-if="selectedGuest?.allergies" class="allergy-text">
+            <input type="text" :value="selectedGuest?.allergies || ''" readonly />
+          </div>
+          
+          <div v-if="selectedGuest?.observations">
+            <p>Observations:</p>
+            <textarea readonly>{{ selectedGuest?.observations || '' }}</textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -188,6 +192,45 @@ const showErrors = ref(false);
 const selectedGuest = ref(null);
 const showGuestInfoModal = ref(false);
 
+const toggleOpen = (value) => {
+  open.value = value;
+  localStorage.setItem("guestListOpen", value.toString());
+};
+
+watch(selectedFloor, (val) => {
+  localStorage.setItem("selectedFloor", val);
+});
+
+const sortedFloors = computed(() => {
+  const floors = [...new Set(guests.value.map((g) => g.floor))];
+  return floors.sort((a, b) => a - b);
+});
+
+const filteredGuestsByFloor = computed(() => {
+  const filtered = selectedFloor.value === "all"
+    ? guests.value
+    : guests.value.filter((g) => g.floor === Number(selectedFloor.value));
+
+  const grouped = {};
+  filtered.forEach((guest) => {
+    if (!grouped[guest.floor]) grouped[guest.floor] = [];
+    grouped[guest.floor].push(guest);
+  });
+
+  Object.keys(grouped).forEach((floor) => {
+    grouped[floor].sort((a, b) => a.table - b.table || a.chair - b.chair);
+  });
+
+  return grouped;
+});
+
+const totalGuests = computed(() => {
+  if (selectedFloor.value === "all") {
+    return guests.value.length;
+  }
+  return guests.value.filter(g => g.floor === Number(selectedFloor.value)).length;
+});
+
 const openGuestInfoModal = (guest) => {
   selectedGuest.value = guest;
   showGuestInfoModal.value = true;
@@ -196,11 +239,6 @@ const openGuestInfoModal = (guest) => {
 const closeGuestInfoModal = () => {
   selectedGuest.value = null;
   showGuestInfoModal.value = false;
-};
-
-const toggleOpen = (value) => {
-  open.value = value;
-  localStorage.setItem("guestListOpen", value.toString());
 };
 
 const fetchGuestDetails = (seatId) => {
@@ -246,39 +284,18 @@ const fetchGuests = async () => {
 
 onMounted(fetchGuests);
 
-watch(selectedFloor, (val) => {
-  localStorage.setItem("selectedFloor", val);
-});
+const openExportModal = () => {
+  showErrors.value = false;
+  weddingName.value = "";
+  weddingDate.value = "";
+  contactPhone.value = "";
+  showModal.value = true;
+};
 
-const sortedFloors = computed(() => {
-  const floors = [...new Set(guests.value.map((g) => g.floor))];
-  return floors.sort((a, b) => a - b);
-});
-
-const filteredGuestsByFloor = computed(() => {
-  const filtered = selectedFloor.value === "all"
-    ? guests.value
-    : guests.value.filter((g) => g.floor === Number(selectedFloor.value));
-
-  const grouped = {};
-  filtered.forEach((guest) => {
-    if (!grouped[guest.floor]) grouped[guest.floor] = [];
-    grouped[guest.floor].push(guest);
-  });
-
-  Object.keys(grouped).forEach((floor) => {
-    grouped[floor].sort((a, b) => a.table - b.table || a.chair - b.chair);
-  });
-
-  return grouped;
-});
-
-const totalGuests = computed(() => {
-  if (selectedFloor.value === "all") {
-    return guests.value.length;
-  }
-  return guests.value.filter(g => g.floor === Number(selectedFloor.value)).length;
-});
+const closeExportModal = () => {
+  showModal.value = false;
+  showErrors.value = false;
+};
 
 const getDietaryInfo = (guest) => {
   const dietary = guest.dietary || {};
@@ -302,19 +319,6 @@ const getDietaryInfo = (guest) => {
   }
 
   return dietaryItems.length > 0 ? dietaryItems.join(", ") : "";
-};
-
-const openExportModal = () => {
-  showErrors.value = false;
-  weddingName.value = "";
-  weddingDate.value = "";
-  contactPhone.value = "";
-  showModal.value = true;
-};
-
-const closeExportModal = () => {
-  showModal.value = false;
-  showErrors.value = false;
 };
 
 const formIsValid = computed(() => {
@@ -472,6 +476,8 @@ defineExpose({ fetchGuests })
 </script>
 
 <style scoped>
+@import 'primeicons/primeicons.css';
+
 .guestList {
   z-index: 98;
   width: 350px;
@@ -540,7 +546,7 @@ defineExpose({ fetchGuests })
 .floor-select {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  margin: 0.5rem 0 1.5rem 0;
+  margin: 0.5rem 1rem 0.5rem 0;
   font-size: 1rem;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -661,138 +667,194 @@ defineExpose({ fetchGuests })
   cursor: not-allowed;
 }
 
-.chair-name-input {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #be9772;
-  padding: 16px;
+.guest-info {
+  background-color: #fff;
+  padding: 2.5rem 2.5rem 3rem;
   border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  z-index: 1010;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  max-height: 80vh;
-  overflow-y: auto;
-  width: 320px;
+  width: 450px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  color: #524939;
+}
+
+.guestInfo-header {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.guest-info i {
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #80693e;
+  transition: color 0.3s ease;
+}
+
+.guest-info i:hover {
+  color: #4f3e18;
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid wheat;
+  border: 2px solid #c2bca6;
   font-size: 1rem;
   letter-spacing: 1px;
+  width: 100%;
 }
 
 caption {
   caption-side: top;
-  padding: 10px;
+  padding: 0.6rem 0;
   font-weight: 600;
+  color: #524939;
+  font-size: 1.1rem;
 }
 
 th, td {
-  border: 1px solid wheat;
-  padding: 8px 10px;
-}
-
-.chair-name-input > input[type="text"] {
-  padding: 8px 12px;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  width: 100%;
+  border: 1px solid #c2bca6;
   text-align: center;
-  box-sizing: border-box;
+  padding: 0.6rem 0.8rem;
+  vertical-align: middle;
 }
 
 .guest-options {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .guest-options p {
   margin: 0;
-  font-weight: bold;
-  font-size: 0.95rem;
-  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #4a3f2a;
 }
 
 .checkbox-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
 }
 
 .checkbox-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   min-height: 26px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  background-color: #f4f1e9;
+  transition: background-color 0.3s ease;
+}
+
+.checkbox-item:hover {
+  background-color: #e9e5d3;
 }
 
 .checkbox-item label {
   text-align: left;
   cursor: default;
-  color: #2c3e50;
-  font-weight: 500;
+  color: #4a3f2a;
+  font-weight: 600;
   flex: 1;
-  margin-right: 8px;
+  margin-right: 0.5rem;
 }
 
 .checkbox-item input[type="checkbox"] {
   margin: 0;
   transform: scale(1.2);
-  cursor: default;
-  accent-color: #007ac1;
+  cursor: pointer;
+  accent-color: #80693e;
   flex-shrink: 0;
+  transition: accent-color 0.3s ease;
+}
+
+.checkbox-item input[type="checkbox"]:hover {
+  accent-color: #4f3e18;
+}
+
+.allergies-title {
+  padding-top: 1rem;
+  font-weight: 600;
+  color: #524939;
 }
 
 .single-checkbox {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-top: 6px;
+  background-color: #f4f1e9;
+  width: fit-content;
+  padding: 0.4rem 0.8rem;
+  justify-content: space-between;
+  border-radius: 6px;
+  margin-top: 0.5rem;
 }
 
-.other-diet-input input,
-.allergy-input input {
+.other-diet-input span {
+  margin-left: 165px;
+}
+
+.other-diet-text input,
+.allergy-text input {
   width: 100%;
-  padding: 6px 10px;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
   box-sizing: border-box;
-  background-color: #f9f9f9;
+  background-color: #f4f1e9;
+  color: #524939;
+  transition: border-color 0.3s ease;
+}
+
+.other-diet-text input:focus,
+.allergy-text input:focus {
+  border-color: #80693e;
+  outline: none;
+  background-color: #fff;
 }
 
 .guest-options textarea {
   width: 100%;
-  padding: 8px 10px;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.85rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-family: inherit;
   resize: vertical;
-  min-height: 60px;
+  min-height: 70px;
   box-sizing: border-box;
-  background-color: #f9f9f9;
+  background-color: #f4f1e9;
+  color: #524939;
+  transition: border-color 0.3s ease;
 }
 
-.guest-options textarea:focus,
-.other-diet-input input:focus,
-.allergy-input input:focus,
-.chair-name-input > input[type="text"]:focus {
+.guest-options textarea:focus {
+  border-color: #80693e;
   outline: none;
-  border-color: #007ac1;
-  box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
+  background-color: #fff;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.close-guestInfo-btn {
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #80693e;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(128, 105, 62, 0.6);
+}
+
+.close-guestInfo-btn:hover {
+  background-color: #4f3e18;
+  box-shadow: 0 6px 16px rgba(79, 62, 24, 0.8);
 }
 </style>

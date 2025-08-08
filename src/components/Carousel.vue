@@ -53,10 +53,9 @@
           {{ idx + 1 }}
         </button>
 
-        <button class="close-btn" @click="closeZoom">Close</button>
+        <button class="close-btn" @click="closeZoom"><i class="pi pi-times"></i></button>
       </div>
 
-      <!-- Targeta d'edició d'hoste millorada -->
       <div v-if="selectedChairIndex !== null" class="chair-name-input">
         <label for="chairName"><b>Guest for chair {{ selectedChairIndex + 1 }}:</b></label>
         <input
@@ -67,32 +66,31 @@
           @keyup.enter="saveGuestName"
           placeholder="Name"
         />
-        
-        <!-- Botons Save i Delete alineats horitzontalment -->
+
         <div class="button-row">
           <button 
             @click="saveGuestData"
             class="save-btn"
           >
-            Save
+            Save <i class="pi pi-save"></i>
           </button>
           <button 
             @click="deleteGuest"
             :disabled="!chairNameInput.trim()"
             class="delete-btn"
           >
-            Delete
+            Delete <i class="pi pi-trash"></i>
           </button>
         </div>
 
-        <!-- Preferències dietètiques en una sola columna -->
         <div class="guest-options">
-          <p><b>Dietary preferences:</b></p>
+          <div class="checkbox-item">
+            <label>Child</label>
+            <input type="checkbox" v-model="isChild" @change="updateCache">
+          </div>
+
+          <p>Dietary preferences:</p>
           <div class="checkbox-grid">
-            <div class="checkbox-item">
-              <label>Child</label>
-              <input type="checkbox" v-model="isChild" @change="updateCache"/>
-            </div>
             <div class="checkbox-item">
               <label>Vegetarian</label>
               <input type="checkbox" v-model="isVegetarian" @change="updateCache"/>
@@ -115,7 +113,7 @@
             <input type="text" v-model="otherDietText" placeholder="Please specify" @input="updateCache"/>
           </div>
 
-          <p><b>Allergies:</b></p>
+          <p>Allergies:</p>
           <div class="checkbox-item single-checkbox">
             <label>Has allergies</label>
             <input type="checkbox" v-model="hasAllergies" @change="updateCache"/>
@@ -125,7 +123,7 @@
             <input type="text" v-model="allergyText" placeholder="Please specify allergies" @input="updateCache"/>
           </div>
 
-          <p><b>Observations:</b></p>
+          <p>Observations:</p>
           <textarea v-model="observations" placeholder="Additional notes..." rows="3" @input="updateCache"></textarea>
         </div>
       </div>
@@ -447,6 +445,8 @@ const prevLayout = () => {
 </script>
 
 <style scoped>
+@import 'primeicons/primeicons.css';
+
 .layout-container {
   display: flex;
   flex-direction: column;
@@ -591,7 +591,6 @@ const prevLayout = () => {
   border-radius: 4px;
 }
 
-/* Contenidor principal de la targeta d'edició millorat */
 .chair-name-input {
   position: absolute;
   top: 50%;
@@ -611,7 +610,6 @@ const prevLayout = () => {
   gap: 12px;
 }
 
-/* Input de nom */
 .chair-name-input > input[type="text"] {
   padding: 8px 12px;
   border: 2px solid #ccc;
@@ -622,7 +620,6 @@ const prevLayout = () => {
   box-sizing: border-box;
 }
 
-/* Contenidor dels botons Save i Delete */
 .button-row {
   display: flex;
   justify-content: space-between;
@@ -666,7 +663,7 @@ const prevLayout = () => {
   cursor: not-allowed;
 }
 
-/* Contenidor de les opcions d'hoste */
+
 .guest-options {
   display: flex;
   flex-direction: column;
@@ -675,12 +672,12 @@ const prevLayout = () => {
 
 .guest-options p {
   margin: 0;
+  text-align: left;
   font-weight: bold;
   font-size: 0.95rem;
   color: #2c3e50;
 }
 
-/* Checkboxes en una sola columna - millor alineació */
 .checkbox-grid {
   display: flex;
   flex-direction: column;
@@ -688,7 +685,6 @@ const prevLayout = () => {
   margin-top: 8px;
 }
 
-/* Item individual de checkbox - alineació perfecta */
 .checkbox-item {
   display: flex;
   justify-content: space-between;
@@ -702,7 +698,7 @@ const prevLayout = () => {
 
 .checkbox-item label {
   text-align: left;
-  cursor: pointer;
+  cursor: default;
   color: #2c3e50;
   font-weight: 500;
   flex: 1;
@@ -717,7 +713,6 @@ const prevLayout = () => {
   flex-shrink: 0;
 }
 
-/* Checkbox individual (per allergies) */
 .single-checkbox {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 4px 8px;
@@ -739,7 +734,6 @@ const prevLayout = () => {
   box-sizing: border-box;
 }
 
-/* Textarea per observacions */
 .guest-options textarea {
   width: 100%;
   padding: 8px 10px;
@@ -759,23 +753,5 @@ const prevLayout = () => {
   outline: none;
   border-color: #007ac1;
   box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
-}
-
-/* Responsive per pantalles petites */
-@media (max-width: 768px) {
-  .chair-name-input {
-    position: fixed;
-    top: auto;
-    bottom: 20px;
-    right: 50%;
-    transform: translateX(50%);
-    width: calc(100vw - 40px);
-    max-width: 350px;
-    max-height: 70vh;
-  }
-  
-  .checkbox-grid {
-    gap: 6px;
-  }
 }
 </style>
