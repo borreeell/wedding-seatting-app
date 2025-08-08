@@ -205,19 +205,7 @@ const toggleOpen = (value) => {
 
 const fetchGuestDetails = (seatId) => {
   const guest = guests.value.find(g => g.id_seat === seatId);
-
-  openGuestInfoModal({
-    ...guest,
-    isChild: guest.isChild,
-    dietary: {
-      vegetarian: !!guest.dietary?.vegetarian,
-      vegan: !!guest.dietary?.vegan,
-      glutenIntolerant: !!guest.dietary?.glutenIntolerant,
-      other: guest.dietary?.other || "",
-    },
-    allergies: guest.allergies || "",
-    observations: guest.observations || "",
-  });
+  openGuestInfoModal(guest)
 };
 
 const fetchGuests = async () => {

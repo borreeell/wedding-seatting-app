@@ -30,6 +30,7 @@
       </button>
     </div>
 
+    <!-- ZOOM MODAL -->
     <div v-if="showZoom" class="zoom-modal" @click.self="closeZoom">
       <div class="zoom-content">
         <img 
@@ -55,6 +56,7 @@
         <button class="close-btn" @click="closeZoom">Close</button>
       </div>
 
+      <!-- Targeta d'edició d'hoste millorada -->
       <div v-if="selectedChairIndex !== null" class="chair-name-input">
         <label for="chairName"><b>Guest for chair {{ selectedChairIndex + 1 }}:</b></label>
         <input
@@ -66,6 +68,7 @@
           placeholder="Name"
         />
         
+        <!-- Botons Save i Delete alineats horitzontalment -->
         <div class="button-row">
           <button 
             @click="saveGuestData"
@@ -82,6 +85,7 @@
           </button>
         </div>
 
+        <!-- Preferències dietètiques en una sola columna -->
         <div class="guest-options">
           <p><b>Dietary preferences:</b></p>
           <div class="checkbox-grid">
@@ -93,6 +97,22 @@
               <label>Vegetarian</label>
               <input type="checkbox" v-model="isVegetarian" @change="updateCache"/>
             </div>
+            <div class="checkbox-item">
+              <label>Vegan</label>
+              <input type="checkbox" v-model="isVegan" @change="updateCache"/>
+            </div>
+            <div class="checkbox-item">
+              <label>Gluten Intolerant</label>
+              <input type="checkbox" v-model="isGlutenIntolerant" @change="updateCache"/>
+            </div>
+            <div class="checkbox-item checkbox-full-width">
+              <label>Other</label>
+              <input type="checkbox" v-model="hasOtherDiet" @change="updateCache"/>
+            </div>
+          </div>
+          
+          <div v-if="hasOtherDiet" class="other-diet-input">
+            <input type="text" v-model="otherDietText" placeholder="Please specify" @input="updateCache"/>
           </div>
 
           <p><b>Allergies:</b></p>
@@ -129,6 +149,7 @@ const selectedChairIndex = ref(null);
 const showZoom = ref(false);
 const chairNameInput = ref("");
 
+// New reactive states for checkboxes and inputs
 const isChild = ref(false);
 const isVegetarian = ref(false);
 const isVegan = ref(false);
@@ -208,6 +229,7 @@ const selectSeat = (index) => {
   selectedChairIndex.value = null;
   showZoom.value = true;
 
+  // Reset new fields when opening a new seat
   resetExtraFields();
 };
 
@@ -221,16 +243,8 @@ const isChairAssigned = (chairIndex) => {
 };
 
 const closeZoom = () => {
-  if (selectedChairIndex.value !== null && selectedTableIndex.value !== null) {
-    const layoutKey = `layout${layoutNum.value}`;
-    const cacheKey = `${layoutKey}-${selectedTableIndex.value}-${selectedChairIndex.value}`;
-    delete guestDataCache.value[cacheKey];
-  }
+  updateCache();
   showZoom.value = false;
-  selectedTableIndex.value = null;
-  selectedChairIndex.value = null;
-  chairNameInput.value = "";
-  resetExtraFields();
 };
 
 const handleChairClick = (chairIndex) => {
@@ -322,7 +336,6 @@ const saveGuestData = async () => {
 
   const layoutKey = `layout${layoutNum.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
-
   if (!seatId) {
     alert("Seat ID not found");
     return;
@@ -331,7 +344,7 @@ const saveGuestData = async () => {
   const guestData = {
     name: chairNameInput.value.trim(),
     id_seat: seatId,
-    isChild: isChild.value,
+    is_child: isChild.value,
     is_vegetarian: isVegetarian.value,
     is_vegan: isVegan.value,
     is_gluten_intolerant: isGlutenIntolerant.value,
@@ -340,12 +353,15 @@ const saveGuestData = async () => {
     has_allergies: hasAllergies.value,
     allergy_text: hasAllergies.value ? allergyText.value.trim() : null,
     observations: observations.value.trim(),
-  }
+  };
+
+  console.log("isChild.value antes de enviar:", isChild.value);
 
   try {
     const response = await api.addGuest(guestData);
 
     emit("guests");
+
     const seat = tablesData.value.find(s => s.seat_id === seatId);
     if (seat) {
       seat.guest_name = chairNameInput.value.trim();
@@ -356,14 +372,13 @@ const saveGuestData = async () => {
     console.error("Error saving guest:", error);
     alert("An error occurred while saving guest");
   }
-}
+};
+
 
 const deleteGuest = async () => {
   const layoutKey = `layout${layoutNum.value}`;
   const cacheKey = `${layoutKey}-${selectedTableIndex.value}-${selectedChairIndex.value}`;
   const seatId = seatIdMap.value?.[layoutKey]?.[selectedTableIndex.value]?.[selectedChairIndex.value];
-
-  delete guestDataCache.value[cacheKey];
 
   if (!seatId) {
     alert("Seat ID not found");
@@ -373,18 +388,43 @@ const deleteGuest = async () => {
   try {
     await api.deleteGuest(seatId);
 
+    delete guestDataCache.value[cacheKey];
+
     const seat = tablesData.value.find(s => s.seat_id === seatId);
-    if (seat) seat.guest_name = null;
+    if (seat) {
+      seat.guest_name = null;
+      seat.is_child = false;
+      seat.is_vegetarian = false;
+      seat.is_vegan = false;
+      seat.is_gluten_intolerant = false;
+      seat.has_other_diet = false;
+      seat.other_diet_text = "";
+      seat.has_allergies = false;
+      seat.allergy_text = "";
+      seat.observations = "";
+    }
+
+    chairNameInput.value = "";
+    isChild.value = false;
+    isVegetarian.value = false;
+    isVegan.value = false;
+    isGlutenIntolerant.value = false;
+    hasOtherDiet.value = false;
+    otherDietText.value = "";
+    hasAllergies.value = false;
+    allergyText.value = "";
+    observations.value = "";
 
     alert("Successfully deleted guest");
 
-    closeZoom();
     emit("guests");
+    resetExtraFields();
+    closeZoom(); // Cierra el modal
   } catch (error) {
     console.error("Error deleting guest: ", error);
     alert("An error occurred while deleting guest");
   }
-}
+};
 
 const getChairTooltip = (chairIndex) => {
   const layoutKey = `layout${layoutNum.value}`;
@@ -551,6 +591,7 @@ const prevLayout = () => {
   border-radius: 4px;
 }
 
+/* Contenidor principal de la targeta d'edició millorat */
 .chair-name-input {
   position: absolute;
   top: 50%;
@@ -570,6 +611,7 @@ const prevLayout = () => {
   gap: 12px;
 }
 
+/* Input de nom */
 .chair-name-input > input[type="text"] {
   padding: 8px 12px;
   border: 2px solid #ccc;
@@ -580,6 +622,7 @@ const prevLayout = () => {
   box-sizing: border-box;
 }
 
+/* Contenidor dels botons Save i Delete */
 .button-row {
   display: flex;
   justify-content: space-between;
@@ -623,6 +666,7 @@ const prevLayout = () => {
   cursor: not-allowed;
 }
 
+/* Contenidor de les opcions d'hoste */
 .guest-options {
   display: flex;
   flex-direction: column;
@@ -636,6 +680,7 @@ const prevLayout = () => {
   color: #2c3e50;
 }
 
+/* Checkboxes en una sola columna - millor alineació */
 .checkbox-grid {
   display: flex;
   flex-direction: column;
@@ -643,6 +688,7 @@ const prevLayout = () => {
   margin-top: 8px;
 }
 
+/* Item individual de checkbox - alineació perfecta */
 .checkbox-item {
   display: flex;
   justify-content: space-between;
@@ -671,6 +717,7 @@ const prevLayout = () => {
   flex-shrink: 0;
 }
 
+/* Checkbox individual (per allergies) */
 .single-checkbox {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 4px 8px;
@@ -678,6 +725,7 @@ const prevLayout = () => {
   margin-top: 6px;
 }
 
+/* Inputs específics per "Other" i "Allergies" */
 .other-diet-input, .allergy-input {
   margin-top: 4px;
 }
@@ -691,6 +739,7 @@ const prevLayout = () => {
   box-sizing: border-box;
 }
 
+/* Textarea per observacions */
 .guest-options textarea {
   width: 100%;
   padding: 8px 10px;
@@ -710,5 +759,23 @@ const prevLayout = () => {
   outline: none;
   border-color: #007ac1;
   box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
+}
+
+/* Responsive per pantalles petites */
+@media (max-width: 768px) {
+  .chair-name-input {
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    right: 50%;
+    transform: translateX(50%);
+    width: calc(100vw - 40px);
+    max-width: 350px;
+    max-height: 70vh;
+  }
+  
+  .checkbox-grid {
+    gap: 6px;
+  }
 }
 </style>
