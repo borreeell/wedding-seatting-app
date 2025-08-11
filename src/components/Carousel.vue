@@ -56,8 +56,10 @@
         <button class="close-btn" @click="closeZoom"><i class="pi pi-times"></i></button>
       </div>
 
-      <div v-if="selectedChairIndex !== null" class="chair-name-input">
-        <label for="chairName"><b>Guest for chair {{ selectedChairIndex + 1 }}:</b></label>
+      <div v-if="selectedChairIndex !== null" class="enter-guest-modal">
+        <div class="enter-guest-header">
+          <h3>Enter guest for chair {{ selectedChairIndex + 1 }}</h3>
+        </div>
         <input
           id="chairName"
           type="text"
@@ -591,12 +593,12 @@ const prevLayout = () => {
   border-radius: 4px;
 }
 
-.chair-name-input {
+.enter-guest-modal {
   position: absolute;
   top: 50%;
   right: 250px;
   transform: translateY(-50%);
-  background-color: #be9772;
+  background-color: #fff;
   padding: 16px;
   border-radius: 10px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
@@ -604,13 +606,13 @@ const prevLayout = () => {
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   max-height: 80vh;
   overflow-y: auto;
-  width: 280px;
+  width: 300px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.chair-name-input > input[type="text"] {
+.enter-guest-modal > input[type="text"] {
   padding: 8px 12px;
   border: 2px solid #ccc;
   border-radius: 6px;
@@ -681,46 +683,50 @@ const prevLayout = () => {
 .checkbox-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
 }
 
 .checkbox-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.88rem;
+  font-size: 0.9em;
   min-height: 26px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  background-color: #f4f1e9;
+}
+
+.checkbox-item:hover {
+  background-color: #e9e5d3;
 }
 
 .checkbox-item label {
   text-align: left;
   cursor: default;
-  color: #2c3e50;
-  font-weight: 500;
+  color: #4a3f2a;
+  font-weight: 600;
   flex: 1;
-  margin-right: 8px;
+  margin-right: 0.5rem;
 }
 
 .checkbox-item input[type="checkbox"] {
   margin: 0;
   transform: scale(1.2);
   cursor: pointer;
-  accent-color: #007ac1;
+  accent-color: #80693e;
   flex-shrink: 0;
+  transition: accent-color 0.3s ease;
 }
 
 .single-checkbox {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #f4f1e9;
   padding: 4px 8px;
   border-radius: 4px;
   margin-top: 6px;
 }
 
-/* Inputs específics per "Other" i "Allergies" */
 .other-diet-input, .allergy-input {
   margin-top: 4px;
 }
@@ -749,7 +755,7 @@ const prevLayout = () => {
 .guest-options textarea:focus,
 .other-diet-input input:focus,
 .allergy-input input:focus,
-.chair-name-input > input[type="text"]:focus {
+.enter-guest-modal > input[type="text"]:focus {
   outline: none;
   border-color: #007ac1;
   box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
