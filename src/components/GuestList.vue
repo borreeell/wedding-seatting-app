@@ -405,7 +405,7 @@ const generatePDF = () => {
     doc.text("Guest Name", col1Center, y, { align: "center" });
     doc.text("Table", col2Center, y, { align: "center" });
     doc.text("Chair", col3Center, y, { align: "center" });
-    doc.text("Dietary Info", col4Center, y, { align: "center" });
+    doc.text("Guest Info", col4Center, y, { align: "center" });
     y += 6;
 
     doc.setDrawColor(0);
