@@ -820,13 +820,14 @@ th, td {
   border: 1.5px solid #ccc;
   border-radius: 8px;
   font-size: 0.9rem;
-  font-family: inherit;
+  font-family: 'Cathiren';
   resize: vertical;
   min-height: 70px;
   box-sizing: border-box;
   background-color: #f4f1e9;
   color: #524939;
   transition: border-color 0.3s ease;
+  resize: none;
 }
 
 .guest-options textarea:focus {

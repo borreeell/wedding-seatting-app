@@ -516,7 +516,6 @@ const prevLayout = () => {
   transition: background-color 0.2s ease;
   border: 2px solid white;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 .seat-number:hover {
@@ -593,6 +592,10 @@ const prevLayout = () => {
   border-radius: 4px;
 }
 
+.pi-times {
+  font-size: 1rem;
+}
+
 .enter-guest-modal {
   position: absolute;
   top: 50%;
@@ -603,7 +606,6 @@ const prevLayout = () => {
   border-radius: 10px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   z-index: 1010;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   max-height: 80vh;
   overflow-y: auto;
   width: 300px;
@@ -612,14 +614,20 @@ const prevLayout = () => {
   gap: 12px;
 }
 
+#chairName {
+  font-family: 'Cathiren', sans-serif;
+  font-size: 0.95rem;
+}
+
 .enter-guest-modal > input[type="text"] {
-  padding: 8px 12px;
-  border: 2px solid #ccc;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.95rem;
+  outline-color: #c0a16b;
   width: 100%;
-  text-align: center;
-  box-sizing: border-box;
+  background-color: #f4f1e9;
+  color: #524939;
 }
 
 .button-row {
@@ -664,7 +672,6 @@ const prevLayout = () => {
   background-color: #ccc;
   cursor: not-allowed;
 }
-
 
 .guest-options {
   display: flex;
@@ -743,11 +750,12 @@ const prevLayout = () => {
 .guest-options textarea {
   width: 100%;
   padding: 8px 10px;
+  resize: none;
   border: 2px solid #ccc;
   border-radius: 6px;
-  font-size: 0.85rem;
-  font-family: inherit;
-  resize: vertical;
+  font-size: 0.95rem;
+  font-family: 'Cathiren';
+  resize: none;
   min-height: 60px;
   box-sizing: border-box;
 }
@@ -756,8 +764,6 @@ const prevLayout = () => {
 .other-diet-input input:focus,
 .allergy-input input:focus,
 .enter-guest-modal > input[type="text"]:focus {
-  outline: none;
-  border-color: #007ac1;
-  box-shadow: 0 0 0 2px rgba(0, 122, 193, 0.2);
+  outline-color: #c0a16b;
 }
 </style>
