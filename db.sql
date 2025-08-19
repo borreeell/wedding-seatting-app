@@ -1,6 +1,7 @@
-DROP DATABASE IF EXISTS wedding;
-
 CREATE DATABASE wedding;
+CREATE USER 'wedding_db'@'localhost' IDENTIFIED BY 'qwer1234';
+GRANT ALL PRIVILEGES ON wedding.* TO 'wedding_db'@'localhost';
+FLUSH PRIVILEGES;
 
 USE wedding;
 
