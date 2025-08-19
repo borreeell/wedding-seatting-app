@@ -1,5 +1,5 @@
 CREATE DATABASE wedding;
-CREATE USER 'wedding_db'@'localhost' IDENTIFIED BY 'qwer1234';
+CREATE USER 'wedding_db'@'localhost' IDENTIFIED BY '';
 GRANT ALL PRIVILEGES ON wedding.* TO 'wedding_db'@'localhost';
 FLUSH PRIVILEGES;
 
