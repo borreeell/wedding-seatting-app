@@ -308,4 +308,118 @@ console.log('Layout actual:', currentLayout.value)
   color: white;
 }
 
+/* RESPONSIVE STYLES - Afegir al final del <style scoped> */
+
+/* Mobile - Extra small devices (phones, 576px and down) */
+@media (max-width: 576px) {
+  .seat-button {
+    width: 35px;
+    height: 35px;
+    font-size: 10px;
+    margin: 1px;
+    border-radius: 4px;
+  }
+  
+  .chair-name-input {
+    width: 95vw;
+    max-width: 300px;
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+  
+  .chair-name-input h3 {
+    font-size: 1rem;
+  }
+  
+  .chair-name-input input[type="text"] {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+  
+  .guest-options {
+    gap: 8px;
+  }
+  
+  .checkbox-item {
+    font-size: 0.8rem;
+    min-height: 22px;
+  }
+  
+  .guest-options textarea {
+    min-height: 50px;
+    font-size: 0.8rem;
+  }
+  
+  .button-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .button-row button {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 577px) and (max-width: 768px) {
+  .seat-button {
+    width: 40px;
+    height: 40px;
+    font-size: 11px;
+    margin: 2px;
+  }
+  
+  .chair-name-input {
+    width: 90vw;
+    max-width: 350px;
+    padding: 14px;
+  }
+  
+  .checkbox-item {
+    font-size: 0.85rem;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 769px) and (max-width: 992px) {
+  .seat-button {
+    width: 45px;
+    height: 45px;
+    font-size: 12px;
+    margin: 3px;
+  }
+  
+  .chair-name-input {
+    width: 380px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 993px) {
+  .seat-button {
+    width: 50px;
+    height: 50px;
+    font-size: 13px;
+    margin: 4px;
+  }
+}
+
+/* Touch devices - Millor experiència tàctil */
+@media (hover: none) and (pointer: coarse) {
+  .seat-button {
+    min-height: 44px; /* Mida mínima recomanada per touch */
+    min-width: 44px;
+  }
+  
+  .seat-button:hover {
+    transform: none; /* Desactivar hover en touch */
+  }
+  
+  .seat-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+}
 </style>

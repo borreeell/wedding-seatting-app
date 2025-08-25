@@ -11,8 +11,9 @@
       />
     </svg>
   </button>
+  
 
-  <aside class="guestList" v-else>
+<aside class="guestList" :class="{ open: open }" v-else>
     <button class="list open-btn" @click="open = true">
       <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
         <path
@@ -475,6 +476,7 @@ const generatePDF = () => {
 defineExpose({ fetchGuests })
 </script>
 
+
 <style scoped>
 @import 'primeicons/primeicons.css';
 
@@ -857,5 +859,91 @@ th, td {
 .close-guestInfo-btn:hover {
   background-color: #4f3e18;
   box-shadow: 0 6px 16px rgba(79, 62, 24, 0.8);
+}
+/* RESPONSIVE STYLES - Afegir al final del <style scoped> */
+
+/* Mobile - Extra small devices (phones, 576px and down) */
+@media (max-width: 576px) {
+  .guestList {
+    width: 100vw;
+    height: 100vh;
+    padding: 1rem 0.5rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .guestList.open {
+    transform: translateX(0);
+  }
+  
+  .close-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    left: auto;
+    z-index: 121;
+  }
+  
+  .open-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    right: auto;
+    z-index: 121;
+  }
+  
+  .modal-content {
+    width: 95vw;
+    max-width: 300px;
+    padding: 1.5rem;
+  }
+  
+  .chair-name-input {
+    width: 95vw;
+    max-width: 300px;
+    max-height: 90vh;
+    padding: 12px;
+  }
+  
+  .floor-select {
+    font-size: 0.9rem;
+  }
+  
+  .export-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 577px) and (max-width: 768px) {
+  .guestList {
+    width: 320px;
+    padding: 1.5rem 0.8rem;
+  }
+  
+  .modal-content {
+    width: 90vw;
+    max-width: 350px;
+  }
+  
+  .chair-name-input {
+    width: 90vw;
+    max-width: 350px;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 769px) and (max-width: 992px) {
+  .guestList {
+    width: 300px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 993px) {
+  .guestList {
+    width: 350px;
+  }
 }
 </style>

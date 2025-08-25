@@ -444,6 +444,7 @@ const nextLayout = () => {
 const prevLayout = () => {
   layoutNum.value = layoutNum.value === 1 ? layouts.length : layoutNum.value - 1;
 };
+
 </script>
 
 <style scoped>
@@ -766,4 +767,81 @@ const prevLayout = () => {
 .enter-guest-modal > input[type="text"]:focus {
   outline-color: #c0a16b;
 }
+/* IMATGES MÉS GRANS AL CAROUSEL */
+
+/* Mobile - Extra small devices (phones, 576px and down) */
+@media (max-width: 576px) {
+  .carousel-slide img,
+  .carousel-slide svg {
+    max-width: 150px;
+    max-height: 150px;
+
+    object-fit: contain;
+  }
+  
+  .carousel-container {
+    height: 60vh;
+    padding: 0.25rem;
+  }
+  
+  .carousel-slide {
+    padding: 0.25rem;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 577px) and (max-width: 768px) {
+  .carousel-slide img,
+  .carousel-slide svg {
+    max-width: 100%;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .carousel-container {
+    height: 85vh;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 769px) and (max-width: 992px) {
+  .carousel-slide img,
+  .carousel-slide svg {
+    max-width: 95%;
+    max-height: 85vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .carousel-container {
+    height: 90vh;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 993px) {
+  .carousel-slide img,
+  .carousel-slide svg {
+    max-width: 95%;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .carousel-container {
+    height: 95vh;
+  }
+}
+
+/* Versió completament gran */
+.carousel-slide.full-size img,
+.carousel-slide.full-size svg {
+  max-width: 100% !important;
+  max-height: 100vh !important;
+}
+
 </style>
