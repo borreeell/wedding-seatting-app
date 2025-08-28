@@ -3,9 +3,7 @@ const commonStyle205 = { width: "200px", marginLeft: "150px" };
 const commonStyle210 = { width: "210px", marginLeft: "150px" };
 const commonStyle220 = { width: "200px", marginLeft: "160px" };
 const commonStyle230 = { width: "200px", marginLeft: "165px" };
-const commonStyle240 = { width: "240px", marginLeft: "150px" };
 const commonStyle245 = { width: "245px", marginLeft: "150px" };
-const commonStyle250 = { width: "250px", marginLeft: "130px" };
 
 // Shared configuration between tables in layout 3
 const sharedTableVariantLayout3 = {

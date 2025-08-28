@@ -12,9 +12,9 @@ app.use(express.json());
 app.use('/api', routes);
 
 const options = {
-    key: fs.readFileSync('/etc/letsencrypt/live/colorovaapp.pl/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/colorovaapp.pl/cert.pem'),
-    ca: fs.readFileSync('/etc/letsencrypt/live/colorovaapp.pl/chain.pem'),
+    key: fs.readFileSync('ROUTE_TO_YOUR_PRIVATE_KEY.pem'),
+    cert: fs.readFileSync('ROUTE_TO_YOUR_CERTIFICATE.pem'),
+    ca: fs.readFileSync('ROUTE_TO_YOUR_CHAIN.pem'),
 };
 
 https.createServer(options, app).listen(3000, () => {
