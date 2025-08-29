@@ -51,7 +51,7 @@ Creates a new guest.
 ### `DELETE /api/guests/:id_seat`
 Deletes a guest by their seat ID.
 
-** Request Body:**
+**Request Body:**
 ```json
 {
   "id_seat": "number"
@@ -62,6 +62,7 @@ Deletes a guest by their seat ID.
 
 #### `GET /api/tables`
 Retrieves all tables and their configurations.
+
 **Response:**
 ```json
 {

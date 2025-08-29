@@ -32,7 +32,7 @@ The root component that orchestrates the entire application. It:
 ### Carousel.vue
 The layout selection component that allows users to browse through different seating arrangements see table zoomed in detail and add guests to specific seats.
 
-```vue
+```
 Key features:
 - Interactive layout preview
 - Interactive seat selection

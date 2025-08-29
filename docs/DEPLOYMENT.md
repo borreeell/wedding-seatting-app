@@ -1,61 +1,150 @@
-# Deployment Guide
+# 🚀 Wedding Seating App – Full Deployment Guide
 
-This guide explains how to deploy the Wedding Seating Application to a production server. In this example, we will use a Linux server with Node.js and OpenLiteSpeed but you are able to use any other web server.
+This guide explains how to deploy the ***Vue frontend + Node.js/Express backend + MySQL database*** on an ***Ubuntu server with OpenLiteSpeed*** with SSL enabled and auto-renewal.
 
-## Prerequisites
+## 1. Update you server
+```bash
+sudo apt update && sudo apt upgrade -y
+```
 
-- Node.js v14 or higher installed on the server
-- PM2 or similar process manager for running Node.js applications
-- Nginx or Apache as a reverse proxy
-- SSL certificate for HTTPS (recommended)
+## 2. Install Node.js, npm, and PM2
+```bash
+sudo apt install -y nodejs npm
+sudo npm install -g pm2
+```
+Verify installation:
+```bash
+node -v
+npm -v
+pm2 -v
+```
 
-## Deployment Steps
-1. **Update your server packages:**
-   ```bash
-   sudo apt update && sudo apt upgrade -y
-   ```
+## 3. Install OpenLiteSpeed
+```bash
+sudo apt install -y wget
+sudo wget -O - https://repo.litespeed.sh | sudo bash
+sudo apt install -y openlitespeed
+```
 
-2. **Install Node.js & npm**
-    ```bash
-    sudo apt install -y nodejs
-    node -v
-    npm -v
-    ```
+## 4. Install and secure MySQL
+```bash
+sudo apt install -y mysql-server
+sudo mysql_secure_installation
+```
 
-3. **Install PM2 (to keep backend runing)**
-    ```bash
-    sudo npm install -g pm2
-    ```
+## 5. Setup project:
+Install Git if not already installed:
+```bash
+sudo apt install -y git
+```
 
-4. **Clone the repository:**
-   ```bash
-    cd /var/www
-    git clone https://github.com/borreeell/wedding-seatting-app
-    cd wedding-seatting-app
-    ```
-You can also use FTP/SFTP to upload your project files to the server.
+Clone project repository:
+```bash
+cd /var/www
+git clone https://github.com/borreeell/wedding-seatting-app.git
+cd wedding-seating-app
+```
 
-5. **Build the frontend:**
-    ```bash
-    npm install
-    npm run build
-    ```
-    This will create a `dist` folder with the production-ready frontend files.
-    Copy the contents of the `dist` folder to your web server's root directory (e.g., `/var/www/html`).
-    ```bash
-    sudo cp -r dist/* /usr/local/lsws/Example/html/
-    ```
+Install dependencies for backend and frontend:
+```bash
+cd backend
+npm install
+cd ..
+npm install
+```
 
-6. **Set up the backend:**
-    ```bash
-    cd ../backend # go to backend folder
-    npm install
-    ```
-    Create a `.env` file in the `backend` directory with your database credentials:
-    ```
-    DB_HOST=your_database_host
-    DB_USER=your_database_user
-    DB_PASSWORD=your_database_password
-    DB_NAME=your_database_name
-    DB_PORT=your_database_port
-    ```
+## 6. Create MySQL database and user
+```bash
+sudo mysql -u root -p
+```
+Inside the MySQL shell, run:
+```sql
+CREATE DATABASE wedding_seating;
+CREATE USER 'wedding_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON wedding_seating.* TO 'wedding_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+✅ Save credentials into .env in backend folder:
+```bash
+cd backend
+nano .env
+```
+Add the following lines (replace `your_password` with the password you set):
+```python
+DB_HOST=localhost
+DB_USER=wedding_user
+DB_PASSWORD=your_password
+DB_NAME=wedding_seating
+DB_PORT=3306 # If the port is not set, it defaults to 3306
+```
+
+## 7. Build Vue frontend
+Install frontend dependencies and build:
+```bash
+cd /var/www/wedding-seating-app
+npm install
+npm run build
+```
+This generates a `dist/` folder.
+Copy it into your OpenLiteSpeed web root:
+```bash
+sudo cp -r dist/* /usr/local/lsws/Example/html/
+```
+
+## 8. Setup Backend
+```bash
+cd /var/www/wedding-seating-app/backend
+npm install
+```
+
+Start backend with PM2:
+```bash
+pm2 start server.js --name wedding-backend
+pm2 save
+pm2 startup
+```
+
+## 9. Configure OpenLiteSpeed
+1. Login to OpenLiteSpeed WebAdmin Console at (`http://your_server_ip:7080`).
+2. Go to *** Virtual Hosts *** > *** Example *** > *** External App ***.
+3. Add a new ***External App***:
+   - Type: ***Web Server***
+   - Name: `WeedingBackend`
+   - Address: `127.0.0.1:3000` (or the port your backend is running on)
+
+## 10. Configure SSL with Let's Encrypt
+Install Certbot:
+```bash
+sudo apt install -y certbot
+```
+
+Obtain SSL certificate:
+```bash
+sudo certbot certonly --webroot -w /usr/local/lsws/Example/html/ -d yourdomain.com
+```
+
+Configure OpenLiteSpeed to use the SSL certificate:
+1. Virtual Hosts -> Example -> SSL -> Add.
+   - Private Key File: `/etc/letsencrypt/live/yourdomain.com/privkey.pem`
+   - Certificate File: `/etc/letsencrypt/live/yourdomain.com/fullchain.pem`
+Save and do ***Graceful Restart***
+
+## 11. Set up auto-renewal for SSL
+Create a cron job:
+```bash
+sudo crontab -e
+```
+
+Add the following line:
+```bash
+3 * * * certbot renew --quiet && systemctl restart lsws
+```
+
+## Additional Notes
+- Ensure your firewall allows traffic on ports 80 and 443.
+- You can monitor your backend with PM2 using `pm2 status` and view logs with `pm2 logs wedding-backend`.
+- For any issues, check OpenLiteSpeed logs located at `/usr/local/lsws/logs/`.
+- Make sure to replace `yourdomain.com` and `your_password` with your actual domain and a strong password.
+- Regularly back up your database and important files.
+- For production, consider setting up a reverse proxy and load balancer for better performance and security.
