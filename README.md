@@ -72,5 +72,5 @@ The frontend should be running at `http://localhost:5173` and the backend at `ht
 This project is split into several documentation files so we recommend you to check them out before starting to work with the project:
 
 - [Frontend Guide](docs/FRONTEND.md) - Frontend architecture and component details
-- [API Documentation](docs/API.md) - Detailed API references and function documentation
-- [Deployment Guide](docs/DEPLOYMENT.md) - Instructions for deploying the application
+- [API Documentation](docs/API.md) - API endpoint references
+- [Deployment Guide](docs/DEPLOYMENT.md) - Instructions for deploying the application into a server
